@@ -36,8 +36,8 @@ public class Pitcher : PlayerCore
 
         //Random Position
         Vector3 targetPos = pitchPoint.position;
-        targetPos.y += upward;
-        targetPos.y *= 1 + Random.Range(accuracy - 1, 1 - accuracy);
+        //targetPos.y += upward;
+        //targetPos.y *= 1 + Random.Range(accuracy - 1, 1 - accuracy);
         targetPos.z *= 1 + Random.Range(accuracy - 1, 1 - accuracy);
         Vector3 pitchDirection = targetPos - transform.position; //Relative position vector
 

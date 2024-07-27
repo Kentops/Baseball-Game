@@ -7,7 +7,7 @@ public class BaseBall : MonoBehaviour
     public bool isLive = true;
     public bool grounded = false; //Touching the ground
     public bool firstGrounded;
-    public float gravity;
+    public float gravityValue = 0; //Gravity starts when hit;
 
     private Rigidbody myRb;
 
@@ -23,12 +23,14 @@ public class BaseBall : MonoBehaviour
         if(grounded == true && !firstGrounded)
         {
             firstGrounded = true;
+            Ballpark.fairBall();
         }
         //Physics
         if(grounded == false)
         {
             //needs to be a vector
-            myRb.velocity -= new Vector3 (0,1,0) * gravity * Time.deltaTime; //Time.deltaTime works in the update function
+            myRb.velocity -= new Vector3 (0,1,0) * gravityValue * Time.deltaTime; //Time.deltaTime works in the update function
+            //myRb.AddForce(Vector3.down * mass * 9.8f * Time.deltaTime);
         }
         else
         {
@@ -41,7 +43,6 @@ public class BaseBall : MonoBehaviour
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             grounded = true;
-            myRb.velocity = new Vector3(myRb.velocity.x, 0, myRb.velocity.z); //Gravity behaves
         }
     }
     private void OnCollisionExit(Collision collision)

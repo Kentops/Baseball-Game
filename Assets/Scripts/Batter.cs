@@ -11,6 +11,7 @@ public class Batter : PlayerCore //Extends Player Cores
     public float placementConsistency; //How close to dead left/center/right 0-1
 
     //Hitspeed is based on the animation
+    private int windingUp = 0;
 
     [SerializeField] private Animator myAnim;
     [SerializeField] private StrikeZone swingCheck;
@@ -25,15 +26,33 @@ public class Batter : PlayerCore //Extends Player Cores
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKey(KeyCode.S) & windingUp == 0)
+        {
+            myAnim.Play("Wind up");
+            windingUp = 1;
+        } 
+        else if (Input.GetKeyUp(KeyCode.S))
         {
             swing();
-        } 
+        }
     }
 
     public void swing()
     {
         myAnim.Play("Swing");
+    }
+
+    public void wound()
+    {
+        if (windingUp == 1)
+        {
+            windingUp = 2; //Fully wound up
+        }
+        else
+        {
+            windingUp = 1; //Wound up too much
+        }
+        
     }
 
     public void swingClimax()
@@ -50,9 +69,12 @@ public class Batter : PlayerCore //Extends Player Cores
                 Rigidbody ballRB = ball.GetComponent<Rigidbody>();
 
                 //Power = power stat * random - part of ball's initial speed
-                float hitPower = power * Random.Range(0.7f, 1.3f) - (0.005f * ballRB.velocity.magnitude);
-                Debug.Log(0.005f * ballRB.velocity.magnitude);
-                if(hitPower < 0) { hitPower = 0.01f; }
+                float hitPower = power * Random.Range(0.7f, 1.3f) + (0.005f * ballRB.velocity.magnitude);
+                if (windingUp == 2)
+                {
+                    hitPower *= 1.25f;
+                }
+                if (hitPower < 0) { hitPower = 12f; }
 
                 //Deciding where the ball goes
                 Vector3 target = new Vector3(0, 0, 0);
@@ -92,14 +114,21 @@ public class Batter : PlayerCore //Extends Player Cores
                     target.z = centerField.z * (1 + Random.Range(placementConsistency - 1, 1 - placementConsistency));
                 }
 
+                //Ball stuff
                 Vector3 direction = target - transform.position;
-                ball.GetComponent<Rigidbody>().velocity = direction.normalized * hitPower; //normalized is unit vector
+                ballRB.velocity = Vector3.zero;
+                ballRB.velocity = direction.normalized * hitPower; //normalized is unit vector
+                ball.GetComponent<BaseBall>().gravityValue = currentField.gravityMultiplier * 9.81f;
+                
 
                 //Let the game know it's a hit
                 Ballpark.ballHit();
+                
             }
             
         }
+        //End of swing, ball is irrelevant here
+        windingUp = 0;
     }
 
     
