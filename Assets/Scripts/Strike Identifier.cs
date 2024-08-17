@@ -8,12 +8,9 @@ public class StrikeIdentifier : MonoBehaviour
     public StrikeZone strikeCheck;
     public bool wasStrike; //False means ball
 
-    private Ballpark theField;
-
     // Start is called before the first frame update
     void Start()
     {
-        theField = GameObject.FindGameObjectWithTag("Field").GetComponent<Ballpark>();
     }
 
     // Update is called once per frame
@@ -42,7 +39,7 @@ public class StrikeIdentifier : MonoBehaviour
             }
             strikeCheck.isStrike = false;
             StrikeZone.theBall = null;
-            theField.removeTheBall();
+            Ballpark.deadBall();
             //Report it below
         }
 

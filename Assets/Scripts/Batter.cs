@@ -21,6 +21,7 @@ public class Batter : PlayerCore //Extends Player Cores
     {
         //Will be overridden, remove later
         currentField = GameObject.FindGameObjectWithTag("Field").GetComponent<Ballpark>();
+        GetComponent<Collider>().enabled = false;
     }
 
     // Update is called once per frame
@@ -57,14 +58,13 @@ public class Batter : PlayerCore //Extends Player Cores
 
     public void swingClimax()
     {
-        if(swingCheck.isStrike == true) //Check if ball is in hitting range
+        if (swingCheck.isStrike == true) //Check if ball is in hitting range
         {
             swingCheck.isStrike = false;
-
             //Get the ball
             GameObject ball = StrikeZone.theBall;
             StrikeZone.theBall = null;
-            if(ball != null) //Required in case the ball is deleted by this time
+            if (ball != null) //Required in case the ball is deleted by this time
             {
                 Rigidbody ballRB = ball.GetComponent<Rigidbody>();
 
@@ -118,18 +118,20 @@ public class Batter : PlayerCore //Extends Player Cores
                 Vector3 direction = target - transform.position;
                 ballRB.velocity = Vector3.zero;
                 ballRB.velocity = direction.normalized * hitPower; //normalized is unit vector
+                ball.GetComponent<BaseBall>().isHeld = false;
                 ball.GetComponent<BaseBall>().gravityValue = currentField.gravityMultiplier * 9.81f;
-                
+
+
 
                 //Let the game know it's a hit
                 Ballpark.ballHit();
-                
+
             }
-            
         }
         //End of swing, ball is irrelevant here
         windingUp = 0;
     }
 
-    
+
+
 }

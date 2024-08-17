@@ -8,9 +8,14 @@ public class Ballpark : MonoBehaviour
     public Transform centerMark;
     public Transform rightMark;
     public GameObject currentBall;
+    public Transform[] pitchPoints;
     public Camera[] fieldCameras; //0 - Catcher, 1 - Ball
     public GameObject ballTarget;
+    public GameObject fieldPositionHolder;
     public float gravityMultiplier;
+
+    public Vector3 flyBallLanding;
+    public Transform[] fieldPos; //In conventional baseball order but rf is 0.
 
     private Transform ballCam;
     private bool ballCamCanMove = true;
@@ -29,6 +34,12 @@ public class Ballpark : MonoBehaviour
         ballHit += setBallLanding;
         fairBall += OnFairBall;
         deadBall += swapToCatcherCam;
+        deadBall += removeTheBall;
+        fieldPos = new Transform[9];
+        for(int i = 0; i<9; i++)
+        {
+            fieldPos[i] = fieldPositionHolder.transform.GetChild(i);
+        }
     }
 
     // Update is called once per frame
@@ -43,17 +54,22 @@ public class Ballpark : MonoBehaviour
 
             //Restrict Ball Camera
             Vector3 cbPos = currentBall.transform.position;
-            if (currentBall != null && (cbPos.x > 230 || cbPos.z > 215 || cbPos.z < -250)) //Change for each stadium
+            if (currentBall == null) //Change for each stadium
             {
                 ballCamCanMove = false;
                 ballTarget.GetComponent<MeshRenderer>().enabled = false;
+                flyBallLanding = Vector3.zero;
             }
 
-            if(!landingPadPlaced && cbPos.y > 75)
+            if(!landingPadPlaced && cbPos.y > transform.position.y + 25)
             {
                 ballTarget.GetComponent<MeshRenderer>().enabled = true;
                 landingPadPlaced = true;
             }
+        }
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            deadBall();
         }
         
 
@@ -83,6 +99,7 @@ public class Ballpark : MonoBehaviour
         }
         Destroy(currentBall);
         currentBall = null;
+        flyBallLanding = Vector3.zero;
     }
 
     private void setBallLanding()
@@ -90,16 +107,19 @@ public class Ballpark : MonoBehaviour
         //Sets the visual for where the ball will land
         Rigidbody ballRB = currentBall.GetComponent<Rigidbody>();
         float airTime = (2 * Mathf.Abs(ballRB.velocity.y)) / (9.81f * gravityMultiplier);
-        airTime *= 1 - (0.0005f * ballRB.velocity.magnitude);
+        //airTime *= 1 - (0.0005f * ballRB.velocity.magnitude);
         float xPos = ballRB.velocity.x * airTime;
         float zPos = ballRB.velocity.z * airTime;
         Vector3 targetPos = new Vector3(xPos, ballTarget.transform.position.y, zPos);
         ballTarget.transform.position = targetPos + new Vector3(currentBall.transform.position.x, 0, currentBall.transform.position.z);
+        flyBallLanding = ballTarget.transform.position;
     }
 
     private void OnFairBall()
     {
         ballTarget.GetComponent<MeshRenderer>().enabled = false;
         landingPadPlaced = false;
+        flyBallLanding = Vector3.zero;
     }
+
 }
