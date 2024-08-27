@@ -191,8 +191,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ace79f43532ad24da97b9e97c0eae6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0
-  currentField: {fileID: 0}
   pitchPoint: {fileID: 0}
   releasePoint: {fileID: 8722145446901991743}
   ball: {fileID: 1282093137231469481, guid: 57384ed29621a0245af32aa900f47020, type: 3}
@@ -214,7 +212,7 @@ MonoBehaviour:
   ballHeldPos: {fileID: 8722145446901991743}
   rayPosition: {fileID: 991907045966732599}
   holdingBall: 0
-  speed: 18
+  speed: 17
 --- !u!1 &7194845706885356323
 GameObject:
   m_ObjectHideFlags: 0

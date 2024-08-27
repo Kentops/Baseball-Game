@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Batter : PlayerCore //Extends Player Cores
+public class Batter : MonoBehaviour
 {
     public float power;
     public float groundBallPercent; //0-1
@@ -15,11 +15,11 @@ public class Batter : PlayerCore //Extends Player Cores
 
     [SerializeField] private Animator myAnim;
     [SerializeField] private StrikeZone swingCheck;
+    private Ballpark currentField;
 
     // Start is called before the first frame update
     void Start()
     {
-        //Will be overridden, remove later
         currentField = GameObject.FindGameObjectWithTag("Field").GetComponent<Ballpark>();
         GetComponent<Collider>().enabled = false;
     }
@@ -68,13 +68,14 @@ public class Batter : PlayerCore //Extends Player Cores
             {
                 Rigidbody ballRB = ball.GetComponent<Rigidbody>();
 
-                //Power = power stat * random - part of ball's initial speed
-                float hitPower = power * Random.Range(0.7f, 1.3f) + (0.005f * ballRB.velocity.magnitude);
-                if (windingUp == 2)
+                //Power = power stat * 4th root of 1-100 -1 (yields 0-2.16 power modifier)
+                float hitPower = power * (Mathf.Pow(Random.Range(1, 100), 0.25f) - 1.35f);
+                if(windingUp == 2)
                 {
-                    hitPower *= 1.25f;
+                    hitPower *= 1.15f;
                 }
-                if (hitPower < 0) { hitPower = 12f; }
+                if (hitPower < 90) { hitPower = 90f; }
+
 
                 //Deciding where the ball goes
                 Vector3 target = new Vector3(0, 0, 0);
@@ -82,13 +83,17 @@ public class Batter : PlayerCore //Extends Player Cores
                 if (chance < groundBallPercent)
                 {
                     //Grounder
-                    target.y = Random.Range(transform.position.y - 100, transform.position.y);
+                    target.y = Random.Range(transform.position.y - 50, transform.position.y + 20);
                 }
                 else
                 {
                     //Flyball
                     target.y = Random.Range(transform.position.y, averageLaunchAngle * 2);
+                    hitPower /= 1.33f;
+                    if (hitPower < power) { hitPower = power; }
+                    Debug.Log("Launch angle" + target.y);
                 }
+                Debug.Log("Hit power" + hitPower);
 
                 //Direction of ball
                 chance = Random.Range(0f, 1f);

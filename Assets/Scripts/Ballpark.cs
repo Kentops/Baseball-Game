@@ -11,7 +11,7 @@ public class Ballpark : MonoBehaviour
     public Transform[] pitchPoints;
     public Camera[] fieldCameras; //0 - Catcher, 1 - Ball
     public GameObject ballTarget;
-    public GameObject fieldPositionHolder;
+    [SerializeField] private GameObject fieldPositionHolder;
     public float gravityMultiplier;
 
     public Vector3 flyBallLanding;
@@ -35,8 +35,8 @@ public class Ballpark : MonoBehaviour
         fairBall += OnFairBall;
         deadBall += swapToCatcherCam;
         deadBall += removeTheBall;
-        fieldPos = new Transform[9];
-        for(int i = 0; i<9; i++)
+        fieldPos = new Transform[fieldPositionHolder.transform.childCount];
+        for(int i = 0; i < fieldPositionHolder.transform.childCount; i++)
         {
             fieldPos[i] = fieldPositionHolder.transform.GetChild(i);
         }

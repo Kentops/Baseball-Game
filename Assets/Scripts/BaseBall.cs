@@ -32,8 +32,7 @@ public class BaseBall : MonoBehaviour
             if (grounded == false)
             {
                 //needs to be a vector
-                myRb.velocity -= new Vector3(0, 1, 0) * gravityValue * Time.deltaTime; //Time.deltaTime works in the update function
-                                                                                       //myRb.AddForce(Vector3.down * mass * 9.8f * Time.deltaTime);
+                myRb.velocity -= new Vector3(0f, 1, 0f) * gravityValue * Time.deltaTime; //Time.deltaTime works in the update function
             }
             else
             {

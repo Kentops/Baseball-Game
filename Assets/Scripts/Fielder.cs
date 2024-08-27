@@ -16,7 +16,8 @@ public class Fielder : MonoBehaviour
     [SerializeField] private Transform rayPosition;
 
     public bool holdingBall = false;
-    public float speed = 18;
+    public int pursueTarget = 0;
+    public float speed;
 
     // Start is called before the first frame update
     void Start()
@@ -83,26 +84,58 @@ public class Fielder : MonoBehaviour
 
     private IEnumerator trackBall()
     {
-        while(theBall != null && ballInfo.isHeld == false)
+        pursueTarget = 0;
+        while(theBall != null)
         {
-
             Vector3 targetPos;
-            if (currentField.flyBallLanding != Vector3.zero && ballInfo.firstGrounded == false)
+            if (pursueTarget == 0)
             {
-                targetPos = currentField.flyBallLanding;
+                //Follow ball
+                if (currentField.flyBallLanding != Vector3.zero && ballInfo.firstGrounded == false)
+                {
+                    //Follow flyball target
+                    targetPos = currentField.flyBallLanding;
+                }
+                else
+                {
+                    //Follow Ball
+                    targetPos = theBall.transform.position;
+                }
+            }
+            else if(pursueTarget == -1)
+            {
+                //Don't move
+                targetPos = transform.position;
             }
             else
             {
-                targetPos = theBall.transform.position;
+                //Defense!
+                targetPos = currentField.fieldPos[pursueTarget].position;
             }
-            targetPos.y = transform.position.y;
-            lookTarget = targetPos;
 
-            if (!touchingOthers) //Prevent running through walls
+            if (!holdingBall)
+            {
+                //Where to look
+                if (targetPos == transform.position)
+                {
+                    lookTarget = theBall.transform.position;
+                    lookTarget.y = transform.position.y;
+                }
+                else
+                {
+                    targetPos.y = transform.position.y;
+                    lookTarget = targetPos;
+                }
+
+            }
+            //Move
+            if (!touchingOthers && !holdingBall) //Prevent running through walls
             {
                 transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
             }
+
             yield return null;
+
         }
         lookTarget = Vector3.zero;
     }
