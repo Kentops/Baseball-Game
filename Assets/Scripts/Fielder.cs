@@ -8,13 +8,14 @@ public class Fielder : MonoBehaviour
     private GameObject theBall;
     private BaseBall ballInfo;
     private Rigidbody myRB;
+    private FielderThrow myThrow;
     private bool grounded = true;
     private bool touchingOthers = false;
     private Vector3 lookTarget;
 
-    [SerializeField] private Transform ballHeldPos;
     [SerializeField] private Transform rayPosition;
 
+    public Transform ballHeldPos;
     public bool holdingBall = false;
     public int pursueTarget = 0;
     public float speed;
@@ -26,6 +27,9 @@ public class Fielder : MonoBehaviour
         Ballpark.ballHit += getLiveBall;
         Ballpark.deadBall += onDeadBall;
         myRB = GetComponent<Rigidbody>();
+
+        myThrow = GetComponent<FielderThrow>();
+        myThrow.enabled = true;
     }
 
     // Update is called once per frame
@@ -34,7 +38,7 @@ public class Fielder : MonoBehaviour
         //Physics
         if(grounded == false)
         {
-            myRB.velocity -= new Vector3(0, 1, 0) * currentField.gravityMultiplier * 9.81f * Time.deltaTime;
+            transform.position -= new Vector3(0, 1, 0) * currentField.gravityMultiplier * 9.81f * Time.deltaTime;
         }
 
         //Raycast
@@ -158,6 +162,8 @@ public class Fielder : MonoBehaviour
             theBall.transform.parent = ballHeldPos;
             theBall.transform.position = ballHeldPos.position;
             holdingBall = true;
+            Debug.Log(myThrow);
+            myThrow.StartCoroutine("HoldingBall"); 
         }
         else if(collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
@@ -172,4 +178,6 @@ public class Fielder : MonoBehaviour
             grounded = false;
         }
     }
+
+    
 }

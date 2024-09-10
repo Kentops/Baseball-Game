@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 4770963413774442326}
   - component: {fileID: 6819093828002894483}
   - component: {fileID: 8114719796366177347}
+  - component: {fileID: -2058039792354974101}
   m_Layer: 8
   m_Name: Blocky player
   m_TagString: Untagged
@@ -209,10 +210,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86570aa82bccbd143b8d824c414b9d4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballHeldPos: {fileID: 8722145446901991743}
   rayPosition: {fileID: 991907045966732599}
+  ballHeldPos: {fileID: 8722145446901991743}
   holdingBall: 0
+  pursueTarget: 0
   speed: 17
+--- !u!114 &-2058039792354974101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4472302600813399773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66b2c8cafac49fa4a93deffcdd8cd251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  throwingSpeed: 5
+  maxAirTime: 2
 --- !u!1 &7194845706885356323
 GameObject:
   m_ObjectHideFlags: 0
