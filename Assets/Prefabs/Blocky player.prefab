@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6219516652710510996}
   - component: {fileID: 186671630382999173}
   - component: {fileID: 996288404645319753}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Blocky
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 6819093828002894483}
   - component: {fileID: 8114719796366177347}
   - component: {fileID: -2058039792354974101}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Blocky player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -143,8 +143,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.6837626, y: 5.5028443, z: 4.007514}
-  m_Center: {x: -0.8749471, y: 2.7823417, z: 0.35511637}
+  m_Size: {x: 3.5328896, y: 5.5028443, z: 4.007514}
+  m_Center: {x: -0.2995113, y: 2.7823417, z: 0.35511637}
 --- !u!95 &6872341405907686313
 Animator:
   serializedVersion: 5
@@ -215,6 +215,7 @@ MonoBehaviour:
   holdingBall: 0
   pursueTarget: 0
   speed: 17
+  throwingSpeed: 1
 --- !u!114 &-2058039792354974101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -222,13 +223,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4472302600813399773}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66b2c8cafac49fa4a93deffcdd8cd251, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  throwingSpeed: 5
-  maxAirTime: 2
+  throwingSpeed: 1
+  maxAirTime: 10
 --- !u!1 &7194845706885356323
 GameObject:
   m_ObjectHideFlags: 0
@@ -238,7 +239,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 991907045966732599}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Raycast point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -269,7 +270,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8722145446901991743}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Hand
   m_TagString: Untagged
   m_Icon: {fileID: -5487077368411116049, guid: 0000000000000000d000000000000000, type: 0}
@@ -302,7 +303,7 @@ GameObject:
   - component: {fileID: 3666714354005569360}
   - component: {fileID: 3909782758859114751}
   - component: {fileID: 7976675514765509623}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Nose
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -16,6 +16,7 @@ public class Ballpark : MonoBehaviour
 
     public Vector3 flyBallLanding;
     public Transform[] fieldPos; //In conventional baseball order but rf is 0.
+    public Fielder[] baseDefenders;
 
     private Transform ballCam;
     private bool ballCamCanMove = true;
@@ -40,6 +41,7 @@ public class Ballpark : MonoBehaviour
         {
             fieldPos[i] = fieldPositionHolder.transform.GetChild(i);
         }
+        baseDefenders = new Fielder[4];
     }
 
     // Update is called once per frame
@@ -70,6 +72,11 @@ public class Ballpark : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.L))
         {
             deadBall();
+        }
+        if (flyBallLanding != Vector3.zero && currentBall.GetComponent<BaseBall>().isHeld == 2)
+        {
+            ballTarget.GetComponent<MeshRenderer>().enabled = false;
+            flyBallLanding = Vector3.zero;
         }
         
 

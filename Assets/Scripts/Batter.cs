@@ -123,7 +123,7 @@ public class Batter : MonoBehaviour
                 Vector3 direction = target - transform.position;
                 ballRB.velocity = Vector3.zero;
                 ballRB.velocity = direction.normalized * hitPower; //normalized is unit vector
-                ball.GetComponent<BaseBall>().isHeld = false;
+                ball.GetComponent<BaseBall>().isHeld = 0;
                 ball.GetComponent<BaseBall>().gravityValue = currentField.gravityMultiplier * 9.81f;
 
 

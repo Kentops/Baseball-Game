@@ -11,6 +11,8 @@ public class TeamControl : MonoBehaviour
     public Player[] awayTeam;
 
     private Ballpark currentField;
+    private GameObject theBall;
+    private BaseBall ballInfo;
 
     // Start is called before the first frame update
     void Start()
@@ -50,6 +52,8 @@ public class TeamControl : MonoBehaviour
     private void assignFielderTargets()
     {
         StartCoroutine("fielderTargets");
+        theBall = currentField.currentBall;
+        ballInfo = theBall.GetComponent<BaseBall>();
     }
 
     private IEnumerator spawnPlayers()
@@ -69,7 +73,7 @@ public class TeamControl : MonoBehaviour
     private IEnumerator fielderTargets()
     {
         yield return new WaitForSeconds(1);
-        while (currentField.currentBall != null)
+        while (theBall != null)
         {
             //Find closest fielder
             Vector3 targetPos;
@@ -94,9 +98,9 @@ public class TeamControl : MonoBehaviour
             //Closest determined
             for (int i = 0; i < 9; i++)
             {
-                if (i == closest)
+                if (i == closest && ballInfo.isHeld == 0)
                 {
-                    homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = 0;
+                    homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = -1;
                 }
                 else
                 {
@@ -104,6 +108,7 @@ public class TeamControl : MonoBehaviour
                     if (i >= 2 && i <= 5)
                     {
                         homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = i + 7;
+                        currentField.baseDefenders[i - 2] = homeTeam[i].transform.GetComponent<Fielder>();
                     }
                     else if (i == 6 || i == 1)
                     {
@@ -112,31 +117,39 @@ public class TeamControl : MonoBehaviour
                     }
                     else
                     {
-                        //Outfielders chase ball until held
-                        if(currentField.currentBall.GetComponent<BaseBall>().isHeld == false)
-                        {
-                            homeTeam[i].GetComponent<Fielder>().pursueTarget = 0;
-                        }
-                        else
+                        //Outfielders chase ground balls until held
+                        if (ballInfo.isHeld == 0 && currentField.flyBallLanding == Vector3.zero)
                         {
                             homeTeam[i].GetComponent<Fielder>().pursueTarget = -1;
                         }
-                        
+                        else
+                        {
+                            homeTeam[i].GetComponent<Fielder>().pursueTarget = i;
+                        }
+
                     }
 
                 }
             }
             //Special cases
-            if(closest == 2 || closest == 3)
+            if (closest <= 5 && homeTeam[closest].transform.position != currentField.fieldPos[closest + 7].position)
+                //|| currentField.baseDefenders[closest-2] != homeTeam[closest] && ballInfo.isHeld == 1) //Make sure no one is already defending the base NEEDS WORK
             {
-                //Pitcher covers home and first
-                homeTeam[1].transform.GetComponent<Fielder>().pursueTarget = closest + 7;
+                if (closest == 2 || closest == 3)
+                {
+                    //Pitcher covers home and first
+                    homeTeam[1].transform.GetComponent<Fielder>().pursueTarget = closest + 7;
+                    currentField.baseDefenders[closest - 2] = homeTeam[1].transform.GetComponent<Fielder>();
+                }
+                else if (closest == 4 || closest == 5)
+                {
+                    //Short stop covers second and third
+                    homeTeam[6].transform.GetComponent<Fielder>().pursueTarget = closest + 7;
+                    currentField.baseDefenders[closest - 2] = homeTeam[6].transform.GetComponent<Fielder>();
+                }
             }
-            else if(closest == 4 || closest == 5)
-            {
-                //Short stop covers second and third
-                homeTeam[6].transform.GetComponent<Fielder>().pursueTarget = closest + 7;
-            }
+           
+
             yield return new WaitForSeconds(0.5f);
         }
 

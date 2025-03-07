@@ -8,10 +8,10 @@ public class Fielder : MonoBehaviour
     private GameObject theBall;
     private BaseBall ballInfo;
     private Rigidbody myRB;
-    private FielderThrow myThrow;
     private bool grounded = true;
     private bool touchingOthers = false;
     private Vector3 lookTarget;
+    private int throwTarget;
 
     [SerializeField] private Transform rayPosition;
 
@@ -19,6 +19,7 @@ public class Fielder : MonoBehaviour
     public bool holdingBall = false;
     public int pursueTarget = 0;
     public float speed;
+    public float throwingSpeed;
 
     // Start is called before the first frame update
     void Start()
@@ -27,9 +28,6 @@ public class Fielder : MonoBehaviour
         Ballpark.ballHit += getLiveBall;
         Ballpark.deadBall += onDeadBall;
         myRB = GetComponent<Rigidbody>();
-
-        myThrow = GetComponent<FielderThrow>();
-        myThrow.enabled = true;
     }
 
     // Update is called once per frame
@@ -42,7 +40,7 @@ public class Fielder : MonoBehaviour
         }
 
         //Raycast
-        if(Physics.Raycast(rayPosition.position, transform.forward, out RaycastHit hit, 1f))
+        if(Physics.Raycast(rayPosition.position, transform.forward, out RaycastHit hit, 2f))
         {
             if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Wall"))
             {
@@ -88,37 +86,37 @@ public class Fielder : MonoBehaviour
 
     private IEnumerator trackBall()
     {
-        pursueTarget = 0;
+        pursueTarget = -1;
         while(theBall != null)
         {
-            Vector3 targetPos;
-            if (pursueTarget == 0)
+            if (!holdingBall)
             {
-                //Follow ball
-                if (currentField.flyBallLanding != Vector3.zero && ballInfo.firstGrounded == false)
+                Vector3 targetPos;
+                if (pursueTarget == -1)
                 {
-                    //Follow flyball target
-                    targetPos = currentField.flyBallLanding;
+                    //Follow ball
+                    if (currentField.flyBallLanding != Vector3.zero && ballInfo.firstGrounded == false)
+                    {
+                        //Follow flyball target
+                        targetPos = currentField.flyBallLanding;
+                    }
+                    else
+                    {
+                        //Follow Ball
+                        targetPos = theBall.transform.position;
+                    }
+                }
+                else if (pursueTarget == -2)
+                {
+                    //Don't move
+                    targetPos = transform.position;
                 }
                 else
                 {
-                    //Follow Ball
-                    targetPos = theBall.transform.position;
+                    //Defense!
+                    targetPos = currentField.fieldPos[pursueTarget].position;
                 }
-            }
-            else if(pursueTarget == -1)
-            {
-                //Don't move
-                targetPos = transform.position;
-            }
-            else
-            {
-                //Defense!
-                targetPos = currentField.fieldPos[pursueTarget].position;
-            }
 
-            if (!holdingBall)
-            {
                 //Where to look
                 if (targetPos == transform.position)
                 {
@@ -131,17 +129,86 @@ public class Fielder : MonoBehaviour
                     lookTarget = targetPos;
                 }
 
+                //Move
+                if (!touchingOthers && !holdingBall) //Prevent running through walls
+                {
+                    transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+                }
             }
-            //Move
-            if (!touchingOthers && !holdingBall) //Prevent running through walls
-            {
-                transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
-            }
+            
 
             yield return null;
 
         }
         lookTarget = Vector3.zero;
+    }
+
+    public IEnumerator HoldingBall()
+    {
+        while (holdingBall == true)
+        {
+            //theBall.transform.position = ballHeldPos.position;
+            if (Input.GetKeyUp(KeyCode.UpArrow))
+            {
+                throwTarget = 2;
+                //Don't throw to yourself
+                if(currentField.baseDefenders[throwTarget] != this)
+                {
+                    StartCoroutine("throwBall");
+                    StopCoroutine("HoldingBall");
+                }
+            }
+            else if (Input.GetKeyUp(KeyCode.LeftArrow))
+            {
+                throwTarget = 3;
+                if (currentField.baseDefenders[throwTarget] != this)
+                {
+                    StartCoroutine("throwBall");
+                    StopCoroutine("HoldingBall");
+                }
+            }
+            else if (Input.GetKeyUp(KeyCode.DownArrow))
+            {
+                throwTarget = 0;
+                if (currentField.baseDefenders[throwTarget] != this)
+                {
+                    StartCoroutine("throwBall");
+                    StopCoroutine("HoldingBall");
+                }
+            }
+            else if (Input.GetKeyUp(KeyCode.RightArrow))
+            {
+                throwTarget = 1;
+                if (currentField.baseDefenders[throwTarget] != this)
+                {
+                    StartCoroutine("throwBall");
+                    StopCoroutine("HoldingBall");
+                }
+            }
+            yield return null;
+        }
+    }
+
+    private IEnumerator throwBall()
+    {
+        //Rotate
+        Vector3 temp = currentField.baseDefenders[throwTarget].transform.position;
+        temp.y = transform.position.y;
+        lookTarget = temp;
+        yield return new WaitForSeconds(0.5f);
+
+        Rigidbody ballRB = currentField.currentBall.GetComponent<Rigidbody>();
+        Vector3 targetPos = currentField.baseDefenders[throwTarget].transform.position - theBall.transform.position;
+        float airTime = 1 / throwingSpeed;//(2 * Mathf.Abs(throwingSpeed)) / (9.81f * currentField.gravityMultiplier);
+
+        //Prepare ball
+        theBall.transform.parent = null;
+        ballInfo.isHeld = 1;
+        ballInfo.useGravity = true;
+        ballRB.velocity = new Vector3(targetPos.x / airTime, currentField.gravityMultiplier * 9.81f / 2, targetPos.z / airTime);
+
+        yield return new WaitForSeconds(2); //Delay before moving again
+        holdingBall = false; 
     }
 
     private void onDeadBall()
@@ -153,17 +220,13 @@ public class Fielder : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject == theBall && ballInfo.isHeld == false)
+        if (collision.gameObject == theBall && ballInfo.isHeld != 2)
         {
-            ballInfo.isHeld = true;
-            Rigidbody ballRb = theBall.GetComponent<Rigidbody>();
-            ballRb.velocity = Vector3.zero;
-            ballRb.angularVelocity = Vector3.zero;
-            theBall.transform.parent = ballHeldPos;
+            ballInfo.hold();
             theBall.transform.position = ballHeldPos.position;
+            theBall.transform.parent = ballHeldPos;
             holdingBall = true;
-            Debug.Log(myThrow);
-            myThrow.StartCoroutine("HoldingBall"); 
+            StartCoroutine("HoldingBall"); 
         }
         else if(collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
