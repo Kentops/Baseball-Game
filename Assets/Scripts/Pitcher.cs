@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Pitcher : PlayerCore
+public class Pitcher : MonoBehaviour
 {
     public Transform pitchPoint;
     public Transform releasePoint;
@@ -15,11 +15,11 @@ public class Pitcher : PlayerCore
     private GameObject liveBall;
     private Animator myAnim;
     private int pitchWindup = 0;
+    private Ballpark currentField;
 
     // Start is called before the first frame update
     void Start()
     {
-        //Will be overridden, remove later
         currentField = GameObject.FindGameObjectWithTag("Field").GetComponent<Ballpark>();
         if (rightHanded)
         {

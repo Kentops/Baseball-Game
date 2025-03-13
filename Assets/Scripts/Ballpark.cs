@@ -11,11 +11,12 @@ public class Ballpark : MonoBehaviour
     public Transform[] pitchPoints;
     public Camera[] fieldCameras; //0 - Catcher, 1 - Ball
     public GameObject ballTarget;
-    public GameObject fieldPositionHolder;
+    [SerializeField] private GameObject fieldPositionHolder;
     public float gravityMultiplier;
 
     public Vector3 flyBallLanding;
     public Transform[] fieldPos; //In conventional baseball order but rf is 0.
+    public Fielder[] baseDefenders;
 
     private Transform ballCam;
     private bool ballCamCanMove = true;
@@ -35,11 +36,12 @@ public class Ballpark : MonoBehaviour
         fairBall += OnFairBall;
         deadBall += swapToCatcherCam;
         deadBall += removeTheBall;
-        fieldPos = new Transform[9];
-        for(int i = 0; i<9; i++)
+        fieldPos = new Transform[fieldPositionHolder.transform.childCount];
+        for(int i = 0; i < fieldPositionHolder.transform.childCount; i++)
         {
             fieldPos[i] = fieldPositionHolder.transform.GetChild(i);
         }
+        baseDefenders = new Fielder[4];
     }
 
     // Update is called once per frame
@@ -70,6 +72,11 @@ public class Ballpark : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.L))
         {
             deadBall();
+        }
+        if (flyBallLanding != Vector3.zero && currentBall.GetComponent<BaseBall>().isHeld == 2)
+        {
+            ballTarget.GetComponent<MeshRenderer>().enabled = false;
+            flyBallLanding = Vector3.zero;
         }
         
 
@@ -107,7 +114,6 @@ public class Ballpark : MonoBehaviour
         //Sets the visual for where the ball will land
         Rigidbody ballRB = currentBall.GetComponent<Rigidbody>();
         float airTime = (2 * Mathf.Abs(ballRB.velocity.y)) / (9.81f * gravityMultiplier);
-        //airTime *= 1 - (0.0005f * ballRB.velocity.magnitude);
         float xPos = ballRB.velocity.x * airTime;
         float zPos = ballRB.velocity.z * airTime;
         Vector3 targetPos = new Vector3(xPos, ballTarget.transform.position.y, zPos);

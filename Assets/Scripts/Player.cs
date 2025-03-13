@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
     private Batter myBatter;
     private Pitcher myPitcher;
     private Fielder myFielder;
+    private FielderThrow myThrow;
 
     // Start is called before the first frame update
     void Start()
@@ -17,6 +18,7 @@ public class Player : MonoBehaviour
         //myBatter = GetComponent<Batter>();
         myPitcher = GetComponent<Pitcher>();
         myFielder = GetComponent<Fielder>();
+        myThrow = GetComponent<FielderThrow>();
         Ballpark.ballHit += ballHitResponse;
     }
 
@@ -32,12 +34,14 @@ public class Player : MonoBehaviour
         {
             myPitcher.enabled = false;
             myFielder.enabled = false;
+            myThrow.enabled = false;
             myBatter.enabled = true;
         }
         else if(newState == 1)
         {
             //myBatter.enabled = false;
             myFielder.enabled = false;
+            myThrow.enabled = false;
             myPitcher.enabled = true;
         }
         else if(newState == 2)
