@@ -43,7 +43,7 @@ public class FielderThrow : MonoBehaviour
         //float xPos = ballRB.velocity.x * airTime;
         //float zPos = ballRB.velocity.z * airTime;
 
-        ballRB.velocity = new Vector3(targetPos.x / airTime, currentField.gravityMultiplier * 9.81f / 2, targetPos.z / airTime);
+        ballRB.linearVelocity = new Vector3(targetPos.x / airTime, currentField.gravityMultiplier * 9.81f / 2, targetPos.z / airTime);
     }
 
     public IEnumerator HoldingBall()

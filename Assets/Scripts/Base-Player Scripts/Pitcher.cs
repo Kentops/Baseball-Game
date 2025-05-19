@@ -72,7 +72,7 @@ public class Pitcher : MonoBehaviour
             ballSpeed *= 1.25f;
         }
 
-        liveBall.GetComponent<Rigidbody>().velocity = pitchDirection * ballSpeed; //Make it normalized later
+        liveBall.GetComponent<Rigidbody>().linearVelocity = pitchDirection * ballSpeed; //Make it normalized later
         currentField.currentBall = liveBall;
         liveBall.transform.parent = null; //Ball is independent
         pitchWindup = 0;

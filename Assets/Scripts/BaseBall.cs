@@ -33,13 +33,13 @@ public class BaseBall : MonoBehaviour
             if (grounded == false)
             {
                 //needs to be a vector
-                myRb.velocity -= new Vector3(0f, 1, 0f) * gravityValue * Time.deltaTime; //Time.deltaTime works in the update function
+                myRb.linearVelocity -= new Vector3(0f, 1, 0f) * gravityValue * Time.deltaTime; //Time.deltaTime works in the update function
             }
             else
             {
                 //Friction
                 float tick = 0.5f * Time.deltaTime;
-                myRb.velocity -= new Vector3(myRb.velocity.x * tick, 0, myRb.velocity.z * tick);
+                myRb.linearVelocity -= new Vector3(myRb.linearVelocity.x * tick, 0, myRb.linearVelocity.z * tick);
             }
         }
         
@@ -50,7 +50,7 @@ public class BaseBall : MonoBehaviour
         isHeld = 2;
         useGravity = false;
         StopCoroutine("checkHeld"); //No need to check
-        myRb.velocity = Vector3.zero;
+        myRb.linearVelocity = Vector3.zero;
         myRb.angularVelocity = Vector3.zero;
     }
 
@@ -59,7 +59,7 @@ public class BaseBall : MonoBehaviour
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
-            grounded = true;;
+            grounded = true;
             StartCoroutine("checkHeld");
         }
     }
@@ -68,6 +68,21 @@ public class BaseBall : MonoBehaviour
         if(collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             grounded = false;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        //Be grabbed by the fielder, so long as they are not a pitcher
+        Fielder myFielder = other.gameObject.GetComponent<Fielder>();
+        if (other.gameObject.tag == "Player" && isHeld != 2 && myFielder.enabled == true)
+        {
+            hold();
+            transform.parent = other.gameObject.GetComponent<Fielder>().ballHeldPos;
+            transform.position = transform.parent.position;
+            myFielder.holdingBall = true;
+            myFielder.StartCoroutine("HoldingBall");
+
         }
     }
 

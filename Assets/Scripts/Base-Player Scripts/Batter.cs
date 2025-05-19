@@ -121,8 +121,8 @@ public class Batter : MonoBehaviour
 
                 //Ball stuff
                 Vector3 direction = target - transform.position;
-                ballRB.velocity = Vector3.zero;
-                ballRB.velocity = direction.normalized * hitPower; //normalized is unit vector
+                ballRB.linearVelocity = Vector3.zero;
+                ballRB.linearVelocity = direction.normalized * hitPower; //normalized is unit vector
                 ball.GetComponent<BaseBall>().isHeld = 0;
                 ball.GetComponent<BaseBall>().gravityValue = currentField.gravityMultiplier * 9.81f;
 

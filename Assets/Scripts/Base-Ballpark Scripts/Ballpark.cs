@@ -113,9 +113,9 @@ public class Ballpark : MonoBehaviour
     {
         //Sets the visual for where the ball will land
         Rigidbody ballRB = currentBall.GetComponent<Rigidbody>();
-        float airTime = (2 * Mathf.Abs(ballRB.velocity.y)) / (9.81f * gravityMultiplier);
-        float xPos = ballRB.velocity.x * airTime;
-        float zPos = ballRB.velocity.z * airTime;
+        float airTime = (2 * Mathf.Abs(ballRB.linearVelocity.y)) / (9.81f * gravityMultiplier);
+        float xPos = ballRB.linearVelocity.x * airTime;
+        float zPos = ballRB.linearVelocity.z * airTime;
         Vector3 targetPos = new Vector3(xPos, ballTarget.transform.position.y, zPos);
         ballTarget.transform.position = targetPos + new Vector3(currentBall.transform.position.x, 0, currentBall.transform.position.z);
         flyBallLanding = ballTarget.transform.position;

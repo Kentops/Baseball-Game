@@ -205,7 +205,7 @@ public class Fielder : MonoBehaviour
         theBall.transform.parent = null;
         ballInfo.isHeld = 1;
         ballInfo.useGravity = true;
-        ballRB.velocity = new Vector3(targetPos.x / airTime, currentField.gravityMultiplier * 9.81f / 2, targetPos.z / airTime);
+        ballRB.linearVelocity = new Vector3(targetPos.x / airTime, currentField.gravityMultiplier * 9.81f / 2, targetPos.z / airTime);
 
         yield return new WaitForSeconds(2); //Delay before moving again
         holdingBall = false; 
@@ -220,15 +220,7 @@ public class Fielder : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject == theBall && ballInfo.isHeld != 2)
-        {
-            ballInfo.hold();
-            theBall.transform.position = ballHeldPos.position;
-            theBall.transform.parent = ballHeldPos;
-            holdingBall = true;
-            StartCoroutine("HoldingBall"); 
-        }
-        else if(collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        if(collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             grounded = true;
         }
