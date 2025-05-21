@@ -70,8 +70,8 @@ public class FielderTargetManager : MonoBehaviour
                     }
                     else
                     {
-                        //Outfielders chase ground balls until held
-                        if (ballInfo.isHeld == 0 && currentField.flyBallLanding == Vector3.zero)
+                        //Outfielders chase balls until held
+                        if (ballInfo.isHeld == 0)
                         {
                             teams.homeTeam[i].GetComponent<Fielder>().pursueTarget = -1;
                         }

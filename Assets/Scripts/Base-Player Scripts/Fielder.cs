@@ -39,10 +39,10 @@ public class Fielder : MonoBehaviour
             transform.position -= new Vector3(0, 1, 0) * currentField.gravityMultiplier * 9.81f * Time.deltaTime;
         }
 
-        //Raycast
+        //Raycast - Prevent player running through things
         if(Physics.Raycast(rayPosition.position, transform.forward, out RaycastHit hit, 2f))
         {
-            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Wall"))
+            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Wall") || hit.transform.gameObject.tag == "Player")
             {
                 touchingOthers = true;
             }
@@ -102,7 +102,7 @@ public class Fielder : MonoBehaviour
                     }
                     else
                     {
-                        //Follow Ball
+                        //Follow Ball if it has been grounded
                         targetPos = theBall.transform.position;
                     }
                 }
@@ -120,13 +120,24 @@ public class Fielder : MonoBehaviour
                 //Where to look
                 if (targetPos == transform.position)
                 {
+                    //If not pursuing
                     lookTarget = theBall.transform.position;
                     lookTarget.y = transform.position.y;
                 }
                 else
                 {
                     targetPos.y = transform.position.y;
-                    lookTarget = targetPos;
+
+                    //If under the ball, look at the ball - even if it's a fly ball
+                    if(Vector3.Distance(targetPos,transform.position) < 2)
+                    {
+                        lookTarget = theBall.transform.position;
+                        lookTarget.y = transform.position.y;
+                    }
+                    else
+                    {
+                        lookTarget = targetPos;
+                    }   
                 }
 
                 //Move

@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 6819093828002894483}
   - component: {fileID: 8114719796366177347}
   - component: {fileID: -2058039792354974101}
+  - component: {fileID: 8002434170953935104}
   m_Layer: 0
   m_Name: Blocky player
   m_TagString: Player
@@ -146,8 +147,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.6662493, y: 5.5028443, z: 4.007514}
-  m_Center: {x: -0.866192, y: 2.7823417, z: 0.35511637}
+  m_Size: {x: 4.957998, y: 5.5028443, z: 4.226325}
+  m_Center: {x: -0.7203176, y: 2.7823417, z: 0.4082585}
 --- !u!95 &6872341405907686313
 Animator:
   serializedVersion: 7
@@ -234,6 +235,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   throwingSpeed: 1
   maxAirTime: 10
+--- !u!65 &8002434170953935104
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4472302600813399773}
+  m_Material: {fileID: 13400000, guid: 715bcbf6e64b8c04bb7f5b4ecc55bdba, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.2781982, y: 5.1819506, z: 4.007514}
+  m_Center: {x: -0.02794844, y: 2.6218948, z: 0.35511637}
 --- !u!1 &7194845706885356323
 GameObject:
   m_ObjectHideFlags: 0

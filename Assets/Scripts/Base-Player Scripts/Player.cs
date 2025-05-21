@@ -36,7 +36,7 @@ public class Player : MonoBehaviour
             myFielder.enabled = false;
             myThrow.enabled = false;
             myBatter.enabled = true;
-            state = 0;
+            //state = 0;
         }
         else if(newState == 1)
         {
@@ -44,14 +44,14 @@ public class Player : MonoBehaviour
             myFielder.enabled = false;
             myThrow.enabled = false;
             myPitcher.enabled = true;
-            state = 1;
+            //state = 1;
         }
         else if(newState == 2)
         {
             //myBatter.enabled = false;
             myPitcher.enabled = false;
             myFielder.enabled = true;
-            state = 2;
+            //state = 2;
         }
     }
 
