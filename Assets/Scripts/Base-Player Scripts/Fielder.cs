@@ -84,6 +84,7 @@ public class Fielder : MonoBehaviour
         StartCoroutine("trackBall");
     }
 
+    //Controls the movement of the fielder
     private IEnumerator trackBall()
     {
         pursueTarget = -1;
@@ -154,6 +155,7 @@ public class Fielder : MonoBehaviour
         lookTarget = Vector3.zero;
     }
 
+    //Deals with throwing the ball
     public IEnumerator HoldingBall()
     {
         while (holdingBall == true)
@@ -208,8 +210,9 @@ public class Fielder : MonoBehaviour
         lookTarget = temp;
         yield return new WaitForSeconds(0.5f);
 
+        //Throw to the base
         Rigidbody ballRB = currentField.currentBall.GetComponent<Rigidbody>();
-        Vector3 targetPos = currentField.baseDefenders[throwTarget].transform.position - theBall.transform.position;
+        Vector3 targetPos = currentField.fieldPos[throwTarget+9].transform.position - theBall.transform.position;
         float airTime = 1 / throwingSpeed;//(2 * Mathf.Abs(throwingSpeed)) / (9.81f * currentField.gravityMultiplier);
 
         //Prepare ball
@@ -219,7 +222,7 @@ public class Fielder : MonoBehaviour
         ballRB.linearVelocity = new Vector3(targetPos.x / airTime, currentField.gravityMultiplier * 9.81f / 2, targetPos.z / airTime);
 
         yield return new WaitForSeconds(2); //Delay before moving again
-        holdingBall = false; 
+        holdingBall = false;
     }
 
     private void onDeadBall()

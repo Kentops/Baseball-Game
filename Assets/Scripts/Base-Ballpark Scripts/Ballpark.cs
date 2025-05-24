@@ -107,6 +107,7 @@ public class Ballpark : MonoBehaviour
         Destroy(currentBall);
         currentBall = null;
         flyBallLanding = Vector3.zero;
+        baseDefenders = new Fielder[4];
     }
 
     private void setBallLanding()

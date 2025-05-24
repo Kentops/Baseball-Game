@@ -51,6 +51,14 @@ public class FielderTargetManager : MonoBehaviour
             //Closest determined
             for (int i = 0; i < 9; i++)
             {
+
+                //Times when we do not want fielders to be reassigned
+                if(i == closest && teams.homeTeam[i].GetComponent<Fielder>().pursueTarget >=9)//If you are on a base near the ball, stay
+                {
+                    continue;
+                }
+
+
                 if (i == closest && ballInfo.isHeld == 0)
                 {
                     teams.homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = -1;
@@ -60,13 +68,26 @@ public class FielderTargetManager : MonoBehaviour
                     //Defense!
                     if (i >= 2 && i <= 5)
                     {
-                        teams.homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = i + 7;
-                        currentField.baseDefenders[i - 2] = teams.homeTeam[i].transform.GetComponent<Fielder>();
+                        if(currentField.baseDefenders[i-2] == null) //Go to base if base is empty
+                        {
+                            teams.homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = i + 7;
+                            currentField.baseDefenders[i - 2] = teams.homeTeam[i].transform.GetComponent<Fielder>();
+                        }
+
                     }
                     else if (i == 6 || i == 1)
                     {
                         //Shortstop and pitcher
                         teams.homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = i;
+
+                        //Remove them from being a base defender if covering
+                        for(int j = 0; j < 4; j++)
+                        {
+                            if (currentField.baseDefenders[j] == teams.homeTeam[i].GetComponent<Fielder>())
+                            {
+                                currentField.baseDefenders[j] = null;
+                            }
+                        }
                     }
                     else
                     {
@@ -85,20 +106,30 @@ public class FielderTargetManager : MonoBehaviour
                 }
             }
             //Special cases
-            if (closest <= 5 && teams.homeTeam[closest].transform.position != currentField.fieldPos[closest + 7].position)
-            //|| currentField.baseDefenders[closest-2] != homeTeam[closest] && ballInfo.isHeld == 1) //Make sure no one is already defending the base NEEDS WORK
+            if (closest <= 5 && teams.homeTeam[closest].transform.position != currentField.fieldPos[closest + 7].position) //Closest is not on the base
             {
                 if (closest == 2 || closest == 3)
                 {
                     //Pitcher covers home and first
                     teams.homeTeam[1].transform.GetComponent<Fielder>().pursueTarget = closest + 7;
                     currentField.baseDefenders[closest - 2] = teams.homeTeam[1].transform.GetComponent<Fielder>();
+
+                    //Tell other fielder to go to default position (if they have the ball already)
+                    if (teams.homeTeam[closest].GetComponent<Fielder>().holdingBall)
+                    {
+                        teams.homeTeam[closest].GetComponent<Fielder>().pursueTarget = closest;
+                    }
                 }
                 else if (closest == 4 || closest == 5)
                 {
                     //Short stop covers second and third
                     teams.homeTeam[6].transform.GetComponent<Fielder>().pursueTarget = closest + 7;
                     currentField.baseDefenders[closest - 2] = teams.homeTeam[6].transform.GetComponent<Fielder>();
+
+                    if (teams.homeTeam[closest].GetComponent<Fielder>().holdingBall)
+                    {
+                        teams.homeTeam[closest].GetComponent<Fielder>().pursueTarget = closest;
+                    }
                 }
             }
 
