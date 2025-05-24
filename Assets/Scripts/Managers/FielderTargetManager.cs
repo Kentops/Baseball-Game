@@ -53,15 +53,18 @@ public class FielderTargetManager : MonoBehaviour
             {
 
                 //Times when we do not want fielders to be reassigned
-                if(i == closest && teams.homeTeam[i].GetComponent<Fielder>().pursueTarget >=9)//If you are on a base near the ball, stay
+                if(i == closest && teams.homeTeam[i].GetComponent<Fielder>().pursueTarget >=9 && ballInfo.isHeld != 0 //If you are on a base near the held ball, stay
+                    || teams.homeTeam[i].GetComponent<Fielder>().holdingBall) //If you are holding the ball, stay
                 {
                     continue;
                 }
 
 
-                if (i == closest && ballInfo.isHeld == 0)
+                if (i == closest) // && ballInfo.isHeld == 0
                 {
                     teams.homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = -1;
+                    //Remove them from being a base defender if covering
+                    removeBaseDefender(i);
                 }
                 else
                 {
@@ -81,13 +84,7 @@ public class FielderTargetManager : MonoBehaviour
                         teams.homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = i;
 
                         //Remove them from being a base defender if covering
-                        for(int j = 0; j < 4; j++)
-                        {
-                            if (currentField.baseDefenders[j] == teams.homeTeam[i].GetComponent<Fielder>())
-                            {
-                                currentField.baseDefenders[j] = null;
-                            }
-                        }
+                        removeBaseDefender(i);
                     }
                     else
                     {
@@ -106,7 +103,7 @@ public class FielderTargetManager : MonoBehaviour
                 }
             }
             //Special cases
-            if (closest <= 5 && teams.homeTeam[closest].transform.position != currentField.fieldPos[closest + 7].position) //Closest is not on the base
+            if (closest <= 5 && !isBaseDefender(closest)) //Closest is not on the base
             {
                 if (closest == 2 || closest == 3)
                 {
@@ -137,5 +134,29 @@ public class FielderTargetManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
+    }
+
+    private bool isBaseDefender(int id) //Checks if fielder {id} is a base defender
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (currentField.baseDefenders[j] == teams.homeTeam[id].GetComponent<Fielder>())
+            {
+                return true;
+            }
+        }
+        //else
+        return false;
+    }
+
+    private void removeBaseDefender(int id) //If fielder {id} is a base defender, remove them from it
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (currentField.baseDefenders[j] == teams.homeTeam[id].GetComponent<Fielder>())
+            {
+                currentField.baseDefenders[j] = null;
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Fielder : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class Fielder : MonoBehaviour
     private GameObject theBall;
     private BaseBall ballInfo;
     private Rigidbody myRB;
+    private NavMeshAgent myNav;
     private bool grounded = true;
     private bool touchingOthers = false;
     private Vector3 lookTarget;
@@ -28,6 +30,7 @@ public class Fielder : MonoBehaviour
         Ballpark.ballHit += getLiveBall;
         Ballpark.deadBall += onDeadBall;
         myRB = GetComponent<Rigidbody>();
+        myNav = GetComponent<NavMeshAgent>();
     }
 
     // Update is called once per frame
@@ -40,7 +43,7 @@ public class Fielder : MonoBehaviour
         }
 
         //Raycast - Prevent player running through things
-        if(Physics.Raycast(rayPosition.position, transform.forward, out RaycastHit hit, 2f))
+        /*if(Physics.Raycast(rayPosition.position, transform.forward, out RaycastHit hit, 2f))
         {
             if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Wall") || hit.transform.gameObject.tag == "Player")
             {
@@ -54,13 +57,14 @@ public class Fielder : MonoBehaviour
         else
         {
             touchingOthers = false;
-        }
+        }*/
 
 
         //Rotate fielder
         if (lookTarget != Vector3.zero)
         {
             transform.LookAt(lookTarget);
+            transform.rotation.eulerAngles.Set(0,transform.rotation.eulerAngles.y,0); //Fix faceplants
         }
         else
         {
@@ -144,7 +148,8 @@ public class Fielder : MonoBehaviour
                 //Move
                 if (!touchingOthers && !holdingBall) //Prevent running through walls
                 {
-                    transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+                    //transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
+                    myNav.destination = targetPos;
                 }
             }
             
@@ -216,6 +221,7 @@ public class Fielder : MonoBehaviour
         float airTime = 1 / throwingSpeed;//(2 * Mathf.Abs(throwingSpeed)) / (9.81f * currentField.gravityMultiplier);
 
         //Prepare ball
+        theBall.transform.position = ballHeldPos.position;
         theBall.transform.parent = null;
         ballInfo.isHeld = 1;
         ballInfo.useGravity = true;
@@ -230,6 +236,7 @@ public class Fielder : MonoBehaviour
         theBall = null;
         ballInfo = null;
         holdingBall = false;
+        myNav.ResetPath();
     }
 
     private void OnCollisionEnter(Collision collision)
