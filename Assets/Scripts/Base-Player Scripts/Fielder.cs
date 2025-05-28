@@ -61,19 +61,25 @@ public class Fielder : MonoBehaviour
 
 
         //Rotate fielder
-        if (lookTarget != Vector3.zero)
+        Vector3 relativePos;
+        Quaternion lookRot;
+
+        if (lookTarget != Vector3.zero && lookTarget != transform.position)
         {
-            transform.LookAt(lookTarget);
-            transform.rotation.eulerAngles.Set(0,transform.rotation.eulerAngles.y,0); //Fix faceplants
+            relativePos = lookTarget - transform.position;
+            lookRot = Quaternion.LookRotation(relativePos, Vector3.up);
         }
         else
         {
-            Quaternion rotA = transform.rotation;
-            Vector3 temp = currentField.fieldCameras[0].transform.position;
-            temp.y = transform.position.y;
-            transform.LookAt(temp);
-            transform.rotation = Quaternion.Slerp(rotA, transform.rotation,Time.deltaTime * 5);
+            relativePos = currentField.fieldCameras[0].transform.position - transform.position;
+            lookRot = Quaternion.LookRotation(relativePos);
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot,Time.deltaTime * 5);
         }
+
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 5);
+
+        //transform.rotation.eulerAngles.Set(0, transform.rotation.eulerAngles.y, 0); //Fix faceplants
 
 
     }
@@ -128,6 +134,7 @@ public class Fielder : MonoBehaviour
                     //If not pursuing
                     lookTarget = theBall.transform.position;
                     lookTarget.y = transform.position.y;
+                    Debug.Log("FALL");
                 }
                 else
                 {
@@ -210,7 +217,7 @@ public class Fielder : MonoBehaviour
     private IEnumerator throwBall()
     {
         //Rotate
-        Vector3 temp = currentField.baseDefenders[throwTarget].transform.position;
+        Vector3 temp = currentField.fieldPos[throwTarget + 9].transform.position;
         temp.y = transform.position.y;
         lookTarget = temp;
         yield return new WaitForSeconds(0.5f);
