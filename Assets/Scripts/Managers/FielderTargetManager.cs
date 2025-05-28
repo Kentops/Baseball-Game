@@ -53,14 +53,14 @@ public class FielderTargetManager : MonoBehaviour
             {
 
                 //Times when we do not want fielders to be reassigned
-                if(i == closest && teams.homeTeam[i].GetComponent<Fielder>().pursueTarget >=9 && ballInfo.isHeld != 0 //If you are on a base near the held ball, stay
+                if(teams.homeTeam[i].GetComponent<Fielder>().pursueTarget >=9 && ballInfo.isHeld != 0 //If you are on a base near the held ball, stay
                     || teams.homeTeam[i].GetComponent<Fielder>().holdingBall) //If you are holding the ball, stay
                 {
                     continue;
                 }
 
 
-                if (i == closest) // && ballInfo.isHeld == 0
+                if (i == closest && ballInfo.isHeld == 0)
                 {
                     teams.homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = -1;
                     //Remove them from being a base defender if covering

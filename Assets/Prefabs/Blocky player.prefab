@@ -219,9 +219,11 @@ MonoBehaviour:
   rayPosition: {fileID: 991907045966732599}
   ballHeldPos: {fileID: 8722145446901991743}
   holdingBall: 0
+  canMove: 1
   pursueTarget: 0
-  speed: 17
-  throwingSpeed: 1
+  speed: 35
+  throwingHeight: 0.1
+  throwingStrength: 10000
 --- !u!114 &-2058039792354974101
 MonoBehaviour:
   m_ObjectHideFlags: 0

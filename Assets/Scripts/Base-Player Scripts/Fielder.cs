@@ -19,9 +19,12 @@ public class Fielder : MonoBehaviour
 
     public Transform ballHeldPos;
     public bool holdingBall = false;
+    public bool canMove = true;
     public int pursueTarget = 0;
     public float speed;
-    public float throwingSpeed;
+
+    public float throwingHeight; // 0.1 Is an absoulute lob, 2 is a straight line
+    public float throwingStrength; //130 covers all infield throws, 200 gets a ball from the outfield to the infield, 350 should get everything
 
     // Start is called before the first frame update
     void Start()
@@ -31,6 +34,7 @@ public class Fielder : MonoBehaviour
         Ballpark.deadBall += onDeadBall;
         myRB = GetComponent<Rigidbody>();
         myNav = GetComponent<NavMeshAgent>();
+        myNav.speed = speed;
     }
 
     // Update is called once per frame
@@ -78,10 +82,6 @@ public class Fielder : MonoBehaviour
         }
 
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 5);
-
-        //transform.rotation.eulerAngles.Set(0, transform.rotation.eulerAngles.y, 0); //Fix faceplants
-
-
     }
 
     public void getLiveBall()
@@ -100,27 +100,29 @@ public class Fielder : MonoBehaviour
         pursueTarget = -1;
         while(theBall != null)
         {
-            if (!holdingBall)
+            if (canMove)
             {
                 Vector3 targetPos;
                 if (pursueTarget == -1)
                 {
-                    //Follow ball
-                    if (currentField.flyBallLanding != Vector3.zero && ballInfo.firstGrounded == false)
+                    if (holdingBall) //Don't pursue a ball you are holding
                     {
-                        //Follow flyball target
-                        targetPos = currentField.flyBallLanding;
+                        targetPos = transform.position;
                     }
                     else
                     {
-                        //Follow Ball if it has been grounded
-                        targetPos = theBall.transform.position;
+                        //Follow ball
+                        if (currentField.flyBallLanding != Vector3.zero && ballInfo.firstGrounded == false)
+                        {
+                            //Follow flyball target
+                            targetPos = currentField.flyBallLanding;
+                        }
+                        else
+                        {
+                            //Follow Ball if it has been grounded
+                            targetPos = theBall.transform.position;
+                        }
                     }
-                }
-                else if (pursueTarget == -2)
-                {
-                    //Don't move
-                    targetPos = transform.position;
                 }
                 else
                 {
@@ -128,28 +130,20 @@ public class Fielder : MonoBehaviour
                     targetPos = currentField.fieldPos[pursueTarget].position;
                 }
 
-                //Where to look
-                if (targetPos == transform.position)
+                //Rotate
+                if(holdingBall)
+                {
+                    lookTarget = Vector3.zero;
+                }
+                else if (Vector3.Distance(targetPos, transform.position) < 2)
                 {
                     //If not pursuing
                     lookTarget = theBall.transform.position;
                     lookTarget.y = transform.position.y;
-                    Debug.Log("FALL");
                 }
                 else
                 {
-                    targetPos.y = transform.position.y;
-
-                    //If under the ball, look at the ball - even if it's a fly ball
-                    if(Vector3.Distance(targetPos,transform.position) < 2)
-                    {
-                        lookTarget = theBall.transform.position;
-                        lookTarget.y = transform.position.y;
-                    }
-                    else
-                    {
-                        lookTarget = targetPos;
-                    }   
+                    lookTarget = targetPos;
                 }
 
                 //Move
@@ -170,6 +164,7 @@ public class Fielder : MonoBehaviour
     //Deals with throwing the ball
     public IEnumerator HoldingBall()
     {
+        canMove = false;
         while (holdingBall == true)
         {
             //theBall.transform.position = ballHeldPos.position;
@@ -216,6 +211,7 @@ public class Fielder : MonoBehaviour
 
     private IEnumerator throwBall()
     {
+        canMove = false;
         //Rotate
         Vector3 temp = currentField.fieldPos[throwTarget + 9].transform.position;
         temp.y = transform.position.y;
@@ -225,17 +221,32 @@ public class Fielder : MonoBehaviour
         //Throw to the base
         Rigidbody ballRB = currentField.currentBall.GetComponent<Rigidbody>();
         Vector3 targetPos = currentField.fieldPos[throwTarget+9].transform.position - theBall.transform.position;
-        float airTime = 1 / throwingSpeed;//(2 * Mathf.Abs(throwingSpeed)) / (9.81f * currentField.gravityMultiplier);
+        float airTime = 1 / throwingHeight;//(2 * Mathf.Abs(throwingSpeed)) / (9.81f * currentField.gravityMultiplier);
 
         //Prepare ball
         theBall.transform.position = ballHeldPos.position;
         theBall.transform.parent = null;
         ballInfo.isHeld = 1;
         ballInfo.useGravity = true;
-        ballRB.linearVelocity = new Vector3(targetPos.x / airTime, currentField.gravityMultiplier * 9.81f / 2, targetPos.z / airTime);
+
+        Vector3 defaultThrow = new Vector3(targetPos.x / airTime, currentField.gravityMultiplier * 9.81f * airTime/ 2, targetPos.z / airTime);
+
+        //Is our fielder strong enough for this throw?
+        Debug.Log(defaultThrow.magnitude);
+        if(defaultThrow.magnitude < throwingStrength)
+        {
+            //Fielder is strong enough
+            ballRB.linearVelocity = defaultThrow;
+        }
+        else
+        {
+            //Fielder is not strong enough, use their power as the magnitude
+            ballRB.linearVelocity = defaultThrow.normalized * throwingStrength;
+        }
+        holdingBall = false;
 
         yield return new WaitForSeconds(2); //Delay before moving again
-        holdingBall = false;
+        canMove = true;
     }
 
     private void onDeadBall()
@@ -243,6 +254,7 @@ public class Fielder : MonoBehaviour
         theBall = null;
         ballInfo = null;
         holdingBall = false;
+        canMove = true;
         myNav.ResetPath();
     }
 
