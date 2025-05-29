@@ -10,15 +10,15 @@ public class Player : MonoBehaviour
     private Batter myBatter;
     private Pitcher myPitcher;
     private Fielder myFielder;
-    private FielderThrow myThrow;
+    private Runner myRunner;
 
     // Start is called before the first frame update
     void Start()
     {
-        //myBatter = GetComponent<Batter>();
+        myBatter = GetComponent<Batter>();
         myPitcher = GetComponent<Pitcher>();
         myFielder = GetComponent<Fielder>();
-        myThrow = GetComponent<FielderThrow>();
+        myRunner = GetComponent<Runner>();
         Ballpark.ballHit += ballHitResponse;
     }
 
@@ -34,24 +34,37 @@ public class Player : MonoBehaviour
         {
             myPitcher.enabled = false;
             myFielder.enabled = false;
-            myThrow.enabled = false;
+            myRunner.enabled = false;
+
             myBatter.enabled = true;
-            //state = 0;
+            state = 0;
         }
         else if(newState == 1)
         {
-            //myBatter.enabled = false;
+            myBatter.enabled = false;
             myFielder.enabled = false;
-            myThrow.enabled = false;
+            myRunner.enabled = false;
+
             myPitcher.enabled = true;
-            //state = 1;
+            state = 1;
         }
         else if(newState == 2)
         {
-            //myBatter.enabled = false;
+            myBatter.enabled = false;
+            myRunner.enabled = false;
             myPitcher.enabled = false;
+
             myFielder.enabled = true;
-            //state = 2;
+            state = 2;
+        }
+        else
+        {
+            myBatter.enabled = false;
+            myPitcher.enabled = false;
+            myFielder.enabled = false;
+
+            myRunner.enabled = true;
+            state = 3;
         }
     }
 

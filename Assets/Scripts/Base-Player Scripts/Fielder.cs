@@ -274,5 +274,22 @@ public class Fielder : MonoBehaviour
         }
     }
 
-    
+    //Colliders only really nned to be active when fielding
+    private void OnEnable()
+    {
+        foreach(Collider col in GetComponents<Collider>())
+        {
+            col.enabled = true;
+        }
+    }
+
+    private void OnDisable()
+    {
+        foreach(Collider col in GetComponents<Collider>())
+        {
+            col.enabled = false;
+        }
+    }
+
+
 }

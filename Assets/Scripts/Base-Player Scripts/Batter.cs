@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Batter : MonoBehaviour
@@ -15,6 +16,7 @@ public class Batter : MonoBehaviour
 
     [SerializeField] private Animator myAnim;
     [SerializeField] private StrikeZone swingCheck;
+    [SerializeField] private GameObject bat;
     private Ballpark currentField;
 
     // Start is called before the first frame update
@@ -29,7 +31,7 @@ public class Batter : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.S) & windingUp == 0)
         {
-            myAnim.Play("Wind up");
+            myAnim.Play("B-Windup");
             windingUp = 1;
         } 
         else if (Input.GetKeyUp(KeyCode.S))
@@ -135,6 +137,18 @@ public class Batter : MonoBehaviour
         }
         //End of swing, ball is irrelevant here
         windingUp = 0;
+    }
+
+    private void OnEnable()
+    {
+        swingCheck.enabled = true;
+        bat.SetActive(true);
+    }
+
+    private void OnDisable()
+    {
+        swingCheck.enabled = false;
+        bat.SetActive(false);
     }
 
 

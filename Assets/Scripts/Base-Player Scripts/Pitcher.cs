@@ -46,7 +46,7 @@ public class Pitcher : MonoBehaviour
                 liveBall = null;
                 currentField.removeTheBall();
             }
-            myAnim.Play("Windup");
+            myAnim.Play("P-Windup");
             liveBall = Instantiate(ball, releasePoint.position, Quaternion.identity);
             liveBall.transform.parent = releasePoint; //Ball moves with release point
             pitchWindup = 1;
