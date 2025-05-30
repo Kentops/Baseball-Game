@@ -107,7 +107,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5555126491672962760
 Transform:
   m_ObjectHideFlags: 0
@@ -117,7 +117,7 @@ Transform:
   m_GameObject: {fileID: 1345547901493375017}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.021755872, z: -0, w: 0.9997633}
-  m_LocalPosition: {x: -5.45, y: 6.69, z: 9.13}
+  m_LocalPosition: {x: -5.45, y: 6.69, z: 8.13}
   m_LocalScale: {x: 3.4999998, y: 3.5, z: 3.4999998}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -174,7 +174,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1737528511378460590
 Transform:
   m_ObjectHideFlags: 0
@@ -302,7 +302,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 4.957998, y: 5.5028443, z: 4.226325}
   m_Center: {x: -0.7203176, y: 2.7823417, z: 0.4082585}
@@ -341,7 +341,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: Boxy
-  state: 1
+  state: 0
 --- !u!114 &8304932937818246231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,13 +349,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4472302600813399773}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26792f443ec27784d8301132d76c9629, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  power: 100
-  groundBallPercent: 0.5
+  power: 120
+  groundBallPercent: 0.33
   averageLaunchAngle: 100
   percentLeft: 0.2
   percentRight: 0.6
@@ -430,7 +430,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 3.2781982, y: 5.1819506, z: 4.007514}
   m_Center: {x: -0.02794844, y: 2.6218948, z: 0.35511637}

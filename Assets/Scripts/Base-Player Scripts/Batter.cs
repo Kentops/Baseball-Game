@@ -36,14 +36,10 @@ public class Batter : MonoBehaviour
         } 
         else if (Input.GetKeyUp(KeyCode.S))
         {
-            swing();
+            myAnim.SetBool("Swinging", true);
         }
     }
 
-    public void swing()
-    {
-        myAnim.Play("Swing");
-    }
 
     public void wound()
     {
@@ -60,6 +56,9 @@ public class Batter : MonoBehaviour
 
     public void swingClimax()
     {
+        myAnim.SetBool("Swinging", false); //Set variables for swing
+        windingUp = 0;
+
         if (swingCheck.isStrike == true) //Check if ball is in hitting range
         {
             swingCheck.isStrike = false;
@@ -136,7 +135,7 @@ public class Batter : MonoBehaviour
             }
         }
         //End of swing, ball is irrelevant here
-        windingUp = 0;
+
     }
 
     private void OnEnable()

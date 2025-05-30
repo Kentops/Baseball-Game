@@ -51,7 +51,7 @@ public class Pitcher : MonoBehaviour
             liveBall.transform.parent = releasePoint; //Ball moves with release point
             pitchWindup = 1;
         }
-        if (Input.GetKeyUp(KeyCode.P))
+        else if (Input.GetKeyUp(KeyCode.P))
         {
             myAnim.SetBool("Pitching", true);
         }
