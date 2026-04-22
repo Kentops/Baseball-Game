@@ -340,7 +340,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cbb6d6a333f2b944bfcc402642a1056, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerName: Boxy
+  playerName: Blocky
   state: 0
 --- !u!114 &8304932937818246231
 MonoBehaviour:

@@ -206,6 +206,14 @@ public class Fielder : MonoBehaviour
                 }
             }
             yield return null;
+
+
+            //SILLY TEST
+            if(Input.GetKey(KeyCode.U))
+            {
+                transform.position = Vector3.MoveTowards(transform.position, transform.position + Vector3.forward, speed * Time.deltaTime);
+                myNav.destination = transform.position; //For when we start moving again when we don't have the ball
+            }
         }
     }
 
@@ -232,7 +240,7 @@ public class Fielder : MonoBehaviour
         Vector3 defaultThrow = new Vector3(targetPos.x / airTime, currentField.gravityMultiplier * 9.81f * airTime/ 2, targetPos.z / airTime);
 
         //Is our fielder strong enough for this throw?
-        Debug.Log(defaultThrow.magnitude);
+        Debug.Log("Required throwing strength: " + defaultThrow.magnitude);
         if(defaultThrow.magnitude < throwingStrength)
         {
             //Fielder is strong enough
