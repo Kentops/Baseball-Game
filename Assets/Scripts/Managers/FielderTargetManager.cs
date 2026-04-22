@@ -51,9 +51,14 @@ public class FielderTargetManager : MonoBehaviour
             //Closest determined
             for (int i = 0; i < 9; i++)
             {
-
+                //If base defender moved off base by player, remove them from defensive scheme
+                if (teams.homeTeam[i].GetComponent<Fielder>().offPosition == true)
+                {
+                    removeBaseDefender(i);
+                }
+    
                 //Times when we do not want fielders to be reassigned
-                if(teams.homeTeam[i].GetComponent<Fielder>().pursueTarget >=9 && ballInfo.isHeld != 0 //If you are on a base near the held ball, stay
+                if (teams.homeTeam[i].GetComponent<Fielder>().pursueTarget >=9 && ballInfo.isHeld != 0 //If you are on a base near the held ball, stay
                     || teams.homeTeam[i].GetComponent<Fielder>().holdingBall) //If you are holding the ball, stay
                 {
                     continue;
@@ -71,7 +76,7 @@ public class FielderTargetManager : MonoBehaviour
                     //Defense!
                     if (i >= 2 && i <= 5)
                     {
-                        if(currentField.baseDefenders[i-2] == null) //Go to base if base is empty
+                        if(currentField.baseDefenders[i-2] == null) //Basemen go to base if base is empty
                         {
                             teams.homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = i + 7;
                             currentField.baseDefenders[i - 2] = teams.homeTeam[i].transform.GetComponent<Fielder>();
@@ -80,7 +85,7 @@ public class FielderTargetManager : MonoBehaviour
                     }
                     else if (i == 6 || i == 1)
                     {
-                        //Shortstop and pitcher
+                        //Shortstop and pitcher - go to normal spots
                         teams.homeTeam[i].transform.GetComponent<Fielder>().pursueTarget = i;
 
                         //Remove them from being a base defender if covering

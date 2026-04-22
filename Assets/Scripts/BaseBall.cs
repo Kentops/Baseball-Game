@@ -12,11 +12,13 @@ public class BaseBall : MonoBehaviour
     public float gravityValue = 0; //Gravity starts when hit;
 
     private Rigidbody myRb;
+    private Collider myCol;
 
     // Start is called before the first frame update
     void Start()
     {
         myRb = GetComponent<Rigidbody>();
+        myCol = GetComponent<Collider>();
     }
 
     // Update is called once per frame
@@ -52,6 +54,17 @@ public class BaseBall : MonoBehaviour
         StopCoroutine("checkHeld"); //No need to check
         myRb.linearVelocity = Vector3.zero;
         myRb.angularVelocity = Vector3.zero;
+        myCol.isTrigger = true;
+    }
+
+    public void onThrow()
+    {
+        //Prepare to be thrown
+        myCol.isTrigger = false;
+        isHeld = 1;
+        transform.parent = null;
+        useGravity = true;
+        Debug.Log("First");
     }
 
 

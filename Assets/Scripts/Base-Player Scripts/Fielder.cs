@@ -20,7 +20,9 @@ public class Fielder : MonoBehaviour
     public Transform ballHeldPos;
     public bool holdingBall = false;
     public bool canMove = true;
+    public bool offPosition = false; //When moved
     public int pursueTarget = 0;
+
     public float speed;
 
     public float throwingHeight; // 0.1 Is an absoulute lob, 2 is a straight line
@@ -100,28 +102,21 @@ public class Fielder : MonoBehaviour
         pursueTarget = -1;
         while(theBall != null)
         {
-            if (canMove)
+            if (canMove && !holdingBall)
             {
                 Vector3 targetPos;
                 if (pursueTarget == -1)
                 {
-                    if (holdingBall) //Don't pursue a ball you are holding
+                    //Follow ball
+                    if (currentField.flyBallLanding != Vector3.zero && ballInfo.firstGrounded == false)
                     {
-                        targetPos = transform.position;
+                        //Follow flyball target
+                        targetPos = currentField.flyBallLanding;
                     }
                     else
                     {
-                        //Follow ball
-                        if (currentField.flyBallLanding != Vector3.zero && ballInfo.firstGrounded == false)
-                        {
-                            //Follow flyball target
-                            targetPos = currentField.flyBallLanding;
-                        }
-                        else
-                        {
-                            //Follow Ball if it has been grounded
-                            targetPos = theBall.transform.position;
-                        }
+                        //Follow Ball if it has been grounded
+                        targetPos = theBall.transform.position;
                     }
                 }
                 else
@@ -131,11 +126,7 @@ public class Fielder : MonoBehaviour
                 }
 
                 //Rotate
-                if(holdingBall)
-                {
-                    lookTarget = Vector3.zero;
-                }
-                else if (Vector3.Distance(targetPos, transform.position) < 2)
+                if (Vector3.Distance(targetPos, transform.position) < 2)
                 {
                     //If not pursuing
                     lookTarget = theBall.transform.position;
@@ -165,6 +156,8 @@ public class Fielder : MonoBehaviour
     public IEnumerator HoldingBall()
     {
         canMove = false;
+        lookTarget = Vector3.zero; //Look at home when you get the ball.
+
         while (holdingBall == true)
         {
             //theBall.transform.position = ballHeldPos.position;
@@ -212,8 +205,21 @@ public class Fielder : MonoBehaviour
             if(Input.GetKey(KeyCode.U))
             {
                 transform.position = Vector3.MoveTowards(transform.position, transform.position + Vector3.forward, speed * Time.deltaTime);
-                myNav.destination = transform.position; //For when we start moving again when we don't have the ball
+
+                //Look where you're going
+                lookTarget = Vector3.forward + transform.position;
+
             }
+
+            if(transform.position != myNav.destination)
+            {
+                //We moved, consider us off base. The fielder manager will reassign fielders
+                offPosition = true;
+            }
+
+            //Always while holding the ball (after transforms)
+            myNav.destination = transform.position; //For when we start moving again when we don't have the ball
+
         }
     }
 
@@ -233,9 +239,7 @@ public class Fielder : MonoBehaviour
 
         //Prepare ball
         theBall.transform.position = ballHeldPos.position;
-        theBall.transform.parent = null;
-        ballInfo.isHeld = 1;
-        ballInfo.useGravity = true;
+        ballInfo.onThrow();
 
         Vector3 defaultThrow = new Vector3(targetPos.x / airTime, currentField.gravityMultiplier * 9.81f * airTime/ 2, targetPos.z / airTime);
 
@@ -255,6 +259,7 @@ public class Fielder : MonoBehaviour
 
         yield return new WaitForSeconds(2); //Delay before moving again
         canMove = true;
+        offPosition = false; //Reincorporate into defensive scheme
     }
 
     private void onDeadBall()
