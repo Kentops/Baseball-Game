@@ -64,7 +64,6 @@ public class BaseBall : MonoBehaviour
         isHeld = 1;
         transform.parent = null;
         useGravity = true;
-        Debug.Log("First");
     }
 
 

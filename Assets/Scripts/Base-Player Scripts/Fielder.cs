@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem;
 
 public class Fielder : MonoBehaviour
 {
@@ -23,10 +24,17 @@ public class Fielder : MonoBehaviour
     public bool offPosition = false; //When moved
     public int pursueTarget = 0;
 
+
     public float speed;
 
     public float throwingHeight; // 0.1 Is an absoulute lob, 2 is a straight line
     public float throwingStrength; //130 covers all infield throws, 200 gets a ball from the outfield to the infield, 350 should get everything
+
+    [Header("Input")]
+    public InputActionReference ia_directional;
+    public InputActionReference ia_prepThrow;
+    private Vector2 _inputDirection; //The directional value of input
+    private bool _throwPrepped;
 
     // Start is called before the first frame update
     void Start()
@@ -65,25 +73,35 @@ public class Fielder : MonoBehaviour
             touchingOthers = false;
         }*/
 
+        //Read input
+        _inputDirection = ia_directional.action.ReadValue<Vector2>();
+        _throwPrepped = ia_prepThrow.action.ReadValue<float>() >= 0.5f; //Return true if key down
 
         //Rotate fielder
         Vector3 relativePos;
         Quaternion lookRot;
 
-        if (lookTarget != Vector3.zero && lookTarget != transform.position)
-        {
-            relativePos = lookTarget - transform.position;
-            lookRot = Quaternion.LookRotation(relativePos, Vector3.up);
-        }
-        else
-        {
-            relativePos = currentField.fieldCameras[0].transform.position - transform.position;
-            lookRot = Quaternion.LookRotation(relativePos);
 
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot,Time.deltaTime * 5);
-        }
 
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 5);
+        if(offPosition == false) //Don't automatically look when we're doing manual movements
+        {
+            if (lookTarget != Vector3.zero && lookTarget != transform.position)
+            {
+                relativePos = lookTarget - transform.position;
+                lookRot = Quaternion.LookRotation(relativePos, Vector3.up);
+            }
+            else
+            {
+                //Look at catcher
+                relativePos = currentField.fieldCameras[0].transform.position - transform.position;
+                lookRot = Quaternion.LookRotation(relativePos);
+
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 5);
+            }
+
+            //Apply
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 5);
+        }
     }
 
     public void getLiveBall()
@@ -118,6 +136,10 @@ public class Fielder : MonoBehaviour
                         //Follow Ball if it has been grounded
                         targetPos = theBall.transform.position;
                     }
+                }
+                else if(pursueTarget == 0)
+                {
+                    targetPos = transform.position;
                 }
                 else
                 {
@@ -160,12 +182,93 @@ public class Fielder : MonoBehaviour
 
         while (holdingBall == true)
         {
-            //theBall.transform.position = ballHeldPos.position;
-            if (Input.GetKeyUp(KeyCode.UpArrow))
+            if(_throwPrepped == false) //False here because I realize throwing will be much more common than moving
+            {
+                //Throw ball if direction inputted
+                if(_inputDirection.x == 1) //First Base
+                {
+                    throwTarget = 1;
+                    //Don't throw to yourself
+                    if (currentField.baseDefenders[throwTarget] != this)
+                    {
+                        StartCoroutine("throwBall");
+                        StopCoroutine("HoldingBall");
+                    }
+                }
+                else if (_inputDirection.y == 1) //Second Base
+                {
+                    throwTarget = 2;
+                    if (currentField.baseDefenders[throwTarget] != this)
+                    {
+                        StartCoroutine("throwBall");
+                        StopCoroutine("HoldingBall");
+                    }
+                }
+                else if(_inputDirection.x == -1) //Third Base
+                {
+                    throwTarget = 3;
+                    if (currentField.baseDefenders[throwTarget] != this)
+                    {
+                        StartCoroutine("throwBall");
+                        StopCoroutine("HoldingBall");
+                    }
+                }
+                else if(_inputDirection.y == -1) //Home Base
+                {
+                    throwTarget = 0;
+                    if (currentField.baseDefenders[throwTarget] != this)
+                    {
+                        StartCoroutine("throwBall");
+                        StopCoroutine("HoldingBall");
+                    }
+                }
+                
+            }
+            else //Throw is not prepped, move on input
+            {
+                Debug.Log("Should be moving");
+                Vector3 moveVector = Vector3.zero;
+
+                if(_inputDirection.x > 0.5f) //Move right
+                {
+                    moveVector += Vector3.back;
+                    offPosition = true; //Tell defense to cover your position
+                }
+                else if (_inputDirection.x < -0.5f) //Move Left
+                {
+                    moveVector += Vector3.forward;
+                    offPosition = true;
+                }
+
+                if (_inputDirection.y > 0.5f) //Move Up
+                {
+                    moveVector += Vector3.right;
+                    offPosition = true;
+                }
+                else if(_inputDirection.y < -0.5f)
+                {
+                    moveVector += Vector3.left;
+                    offPosition = true;
+                }
+
+                //Apply movement and rotation
+                myNav.destination = moveVector.normalized + transform.position;
+                lookTarget = moveVector + transform.position;
+
+                //Rotate fielder
+                Vector3 relativePos;
+                Quaternion lookRot;
+                relativePos = lookTarget - transform.position;
+                lookRot = Quaternion.LookRotation(relativePos, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 5);
+            }
+            yield return null;
+
+            /*if (Input.GetKeyUp(KeyCode.UpArrow))
             {
                 throwTarget = 2;
                 //Don't throw to yourself
-                if(currentField.baseDefenders[throwTarget] != this)
+                if (currentField.baseDefenders[throwTarget] != this)
                 {
                     StartCoroutine("throwBall");
                     StopCoroutine("HoldingBall");
@@ -208,17 +311,11 @@ public class Fielder : MonoBehaviour
 
                 //Look where you're going
                 lookTarget = Vector3.forward + transform.position;
-
-            }
-
-            if(transform.position != myNav.destination)
-            {
-                //We moved, consider us off base. The fielder manager will reassign fielders
-                offPosition = true;
+                offPosition = true; //Can't have for any movement, has to be specificly from input
             }
 
             //Always while holding the ball (after transforms)
-            myNav.destination = transform.position; //For when we start moving again when we don't have the ball
+            myNav.destination = transform.position; //For when we start moving again when we don't have the ball*/
 
         }
     }
@@ -227,14 +324,14 @@ public class Fielder : MonoBehaviour
     {
         canMove = false;
         //Rotate
-        Vector3 temp = currentField.fieldPos[throwTarget + 9].transform.position;
+        Vector3 temp = currentField.fieldPos[throwTarget + 10].transform.position;
         temp.y = transform.position.y;
         lookTarget = temp;
         yield return new WaitForSeconds(0.5f);
 
         //Throw to the base
         Rigidbody ballRB = currentField.currentBall.GetComponent<Rigidbody>();
-        Vector3 targetPos = currentField.fieldPos[throwTarget+9].transform.position - theBall.transform.position;
+        Vector3 targetPos = currentField.fieldPos[throwTarget+10].transform.position - theBall.transform.position;
         float airTime = 1 / throwingHeight;//(2 * Mathf.Abs(throwingSpeed)) / (9.81f * currentField.gravityMultiplier);
 
         //Prepare ball
@@ -256,10 +353,12 @@ public class Fielder : MonoBehaviour
             ballRB.linearVelocity = defaultThrow.normalized * throwingStrength;
         }
         holdingBall = false;
+        offPosition = false; //Reincorporate into defensive scheme
+        pursueTarget = 0; //Wait to be reassigned
 
         yield return new WaitForSeconds(2); //Delay before moving again
         canMove = true;
-        offPosition = false; //Reincorporate into defensive scheme
+
     }
 
     private void onDeadBall()
@@ -294,6 +393,7 @@ public class Fielder : MonoBehaviour
         {
             col.enabled = true;
         }
+        GetComponent<NavMeshAgent>().enabled = true;
     }
 
     private void OnDisable()

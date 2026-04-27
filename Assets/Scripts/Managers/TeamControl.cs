@@ -34,8 +34,8 @@ public class TeamControl : MonoBehaviour
     {
         for(int i = 0; i <9; i++)
         {
-            homeTeam[i].gameObject.transform.position = currentField.fieldPos[i].position;
-            if (i == 1)
+            homeTeam[i].gameObject.transform.position = currentField.fieldPos[i+1].position;
+            if (i == 0)
             {
                 homeTeam[i].changeState(1);
             }

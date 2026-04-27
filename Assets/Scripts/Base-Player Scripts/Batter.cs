@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.InputSystem;
 
 public class Batter : MonoBehaviour
 {
@@ -19,6 +21,9 @@ public class Batter : MonoBehaviour
     [SerializeField] private GameObject bat;
     private Ballpark currentField;
 
+    [Header("Input")]
+    public InputActionReference ia_swing;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,19 +34,22 @@ public class Batter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.S) & windingUp == 0)
-        {
-            myAnim.Play("B-Windup");
-            windingUp = 1;
-        } 
-        else if (Input.GetKeyUp(KeyCode.S))
-        {
-            myAnim.SetBool("Swinging", true);
-        }
+        
+    }
+
+    private void onWindup(InputAction.CallbackContext obj)
+    {
+        myAnim.Play("B-Windup");
+        windingUp = 1;
+    }
+
+    private void onSwing(InputAction.CallbackContext obj)
+    {
+        myAnim.SetBool("Swinging", true);
     }
 
 
-    public void wound()
+    public void wound() //Called in the animation via event
     {
         if (windingUp == 1)
         {
@@ -140,14 +148,27 @@ public class Batter : MonoBehaviour
 
     private void OnEnable()
     {
+        //Disable colliders (used for physical collisions and touching the ball/base)
+        foreach(Collider col in GetComponents<Collider>())
+        {
+            col.enabled = false;
+        }
+        GetComponent<NavMeshAgent>().enabled = false; //Disabled as a batter so we aren't bumped at all.
+
         swingCheck.enabled = true;
         bat.SetActive(true);
+
+        ia_swing.action.started += onWindup;
+        ia_swing.action.canceled += onSwing;
     }
 
     private void OnDisable()
     {
         swingCheck.enabled = false;
         bat.SetActive(false);
+
+        ia_swing.action.started -= onWindup;
+        ia_swing.action.canceled -= onSwing;
     }
 
 

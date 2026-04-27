@@ -22,6 +22,7 @@ public class Ballpark : MonoBehaviour
     private bool ballCamCanMove = true;
     private bool landingPadPlaced = false;
 
+    public static Ballpark i;
     public delegate void FieldEvent();
     public static FieldEvent ballHit;
     public static FieldEvent fairBall;
@@ -30,14 +31,16 @@ public class Ballpark : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ballCam = fieldCameras[1].transform;
+        if (i == null) { i = this; } else { Destroy(gameObject);  } //Singleton
+
+            ballCam = fieldCameras[1].transform;
         ballHit += swapToBallCam;
         ballHit += setBallLanding;
         fairBall += OnFairBall;
         deadBall += swapToCatcherCam;
         deadBall += removeTheBall;
         fieldPos = new Transform[fieldPositionHolder.transform.childCount];
-        for(int i = 0; i < fieldPositionHolder.transform.childCount; i++)
+        for(int i = 1; i < fieldPositionHolder.transform.childCount; i++)
         {
             fieldPos[i] = fieldPositionHolder.transform.GetChild(i);
         }
