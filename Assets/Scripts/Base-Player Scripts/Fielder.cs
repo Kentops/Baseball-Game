@@ -40,8 +40,6 @@ public class Fielder : MonoBehaviour
     void Start()
     {
         currentField = GameObject.FindGameObjectWithTag("Field").GetComponent<Ballpark>();
-        Ballpark.ballHit += getLiveBall;
-        Ballpark.deadBall += onDeadBall;
         myRB = GetComponent<Rigidbody>();
         myNav = GetComponent<NavMeshAgent>();
         myNav.speed = speed;
@@ -389,7 +387,9 @@ public class Fielder : MonoBehaviour
     //Colliders only really nned to be active when fielding
     private void OnEnable()
     {
-        foreach(Collider col in GetComponents<Collider>())
+        Ballpark.deadBall += onDeadBall;
+        Ballpark.ballHit += getLiveBall;
+        foreach (Collider col in GetComponents<Collider>())
         {
             col.enabled = true;
         }
@@ -398,7 +398,9 @@ public class Fielder : MonoBehaviour
 
     private void OnDisable()
     {
-        foreach(Collider col in GetComponents<Collider>())
+        Ballpark.deadBall -= onDeadBall;
+        Ballpark.ballHit -= getLiveBall;
+        foreach (Collider col in GetComponents<Collider>())
         {
             col.enabled = false;
         }

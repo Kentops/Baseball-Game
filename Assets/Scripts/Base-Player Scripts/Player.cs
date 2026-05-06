@@ -30,39 +30,28 @@ public class Player : MonoBehaviour
 
     public void changeState(int newState)
     {
-        if(newState == 0)
-        {
-            myPitcher.enabled = false;
-            myFielder.enabled = false;
-            myRunner.enabled = false;
+        myBatter.enabled = false;
+        myPitcher.enabled = false;
+        myFielder.enabled = false;
+        myRunner.enabled = false;
 
+        if (newState == 0)
+        {
             myBatter.enabled = true;
             state = 0;
         }
         else if(newState == 1)
         {
-            myBatter.enabled = false;
-            myFielder.enabled = false;
-            myRunner.enabled = false;
-
             myPitcher.enabled = true;
             state = 1;
         }
         else if(newState == 2)
         {
-            myBatter.enabled = false;
-            myRunner.enabled = false;
-            myPitcher.enabled = false;
-
             myFielder.enabled = true;
             state = 2;
         }
         else
         {
-            myBatter.enabled = false;
-            myPitcher.enabled = false;
-            myFielder.enabled = false;
-
             myRunner.enabled = true;
             state = 3;
         }

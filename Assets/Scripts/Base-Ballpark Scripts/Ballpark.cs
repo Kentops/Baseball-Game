@@ -9,6 +9,7 @@ public class Ballpark : MonoBehaviour
     public Transform rightMark;
     public GameObject currentBall;
     public Transform[] pitchPoints;
+    public StrikeZone[] batterSwingCheck;
     public Camera[] fieldCameras; //0 - Catcher, 1 - Ball
     public GameObject ballTarget;
     [SerializeField] private GameObject fieldPositionHolder;
@@ -26,19 +27,15 @@ public class Ballpark : MonoBehaviour
     public delegate void FieldEvent();
     public static FieldEvent ballHit;
     public static FieldEvent fairBall;
-    public static FieldEvent deadBall;
+    public static FieldEvent deadBall; //Ball removed from play
+    public static FieldEvent resetField; //Elements of scene reset
 
     // Start is called before the first frame update
     void Start()
     {
         if (i == null) { i = this; } else { Destroy(gameObject);  } //Singleton
 
-            ballCam = fieldCameras[1].transform;
-        ballHit += swapToBallCam;
-        ballHit += setBallLanding;
-        fairBall += OnFairBall;
-        deadBall += swapToCatcherCam;
-        deadBall += removeTheBall;
+        ballCam = fieldCameras[1].transform;
         fieldPos = new Transform[fieldPositionHolder.transform.childCount];
         for(int i = 1; i < fieldPositionHolder.transform.childCount; i++)
         {
@@ -74,7 +71,9 @@ public class Ballpark : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.L))
         {
+            //Delete ball and reset game;
             deadBall();
+            resetField();
         }
         if (flyBallLanding != Vector3.zero && currentBall.GetComponent<BaseBall>().isHeld == 2)
         {
@@ -103,10 +102,6 @@ public class Ballpark : MonoBehaviour
 
     public void removeTheBall() //Makes sure the field knows what's up
     {
-        if (fieldCameras[0].targetDisplay != 0)
-        {
-            swapToCatcherCam();
-        }
         Destroy(currentBall);
         currentBall = null;
         flyBallLanding = Vector3.zero;
@@ -130,6 +125,24 @@ public class Ballpark : MonoBehaviour
         ballTarget.GetComponent<MeshRenderer>().enabled = false;
         landingPadPlaced = false;
         flyBallLanding = Vector3.zero;
+    }
+
+    private void OnEnable()
+    {
+        ballHit += swapToBallCam;
+        ballHit += setBallLanding;
+        fairBall += OnFairBall;
+        deadBall += removeTheBall;
+        resetField += swapToCatcherCam;
+    }
+
+    private void OnDisable()
+    {
+        ballHit -= swapToBallCam;
+        ballHit -= setBallLanding;
+        fairBall -= OnFairBall;
+        deadBall -= removeTheBall;
+        resetField -= swapToCatcherCam;
     }
 
 }

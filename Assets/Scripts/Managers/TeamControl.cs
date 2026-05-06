@@ -16,7 +16,6 @@ public class TeamControl : MonoBehaviour
     void Start()
     {
         currentField = GameObject.FindGameObjectWithTag("Field").GetComponent<Ballpark>();
-        Ballpark.deadBall += resetFielders;
         homeTeam = new Player[9];
         awayTeam = new Player[9];
     }
@@ -32,6 +31,7 @@ public class TeamControl : MonoBehaviour
 
     public void resetFielders()
     {
+        Debug.Log("Fielders reset");
         for(int i = 0; i <9; i++)
         {
             homeTeam[i].gameObject.transform.position = currentField.fieldPos[i+1].position;
@@ -44,6 +44,8 @@ public class TeamControl : MonoBehaviour
                 homeTeam[i].changeState(2);
             }
         }
+
+        awayTeam[0].changeState(0);
     }
 
     private IEnumerator spawnPlayers()
@@ -56,9 +58,24 @@ public class TeamControl : MonoBehaviour
             homeTeam[i] = temp.GetComponent<Player>();
 
         }
+
+        //Batter
+        GameObject bat = Instantiate(awayTeamPrefab[0]);
+        awayTeam[0] = bat.GetComponent<Player>();
+
         yield return new WaitForSeconds(0.1f); //Delay
         resetFielders();
     }
 
-    
+    private void OnEnable()
+    {
+        Ballpark.resetField += resetFielders;
+    }
+
+    private void OnDisable()
+    {
+        Ballpark.resetField -= resetFielders;
+    }
+
+
 }

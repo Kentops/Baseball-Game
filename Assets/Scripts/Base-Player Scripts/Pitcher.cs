@@ -36,8 +36,6 @@ public class Pitcher : MonoBehaviour
         pitcherTarget = Ballpark.i.pitchPoints[1];
 
         myAnim = GetComponent<Animator>();
-        Ballpark.deadBall += onDeadBall;
-        onDeadBall(); //Sets up rotation
     }
 
     // Update is called once per frame
@@ -48,7 +46,7 @@ public class Pitcher : MonoBehaviour
 
 
         //Apply shift
-        if(hasPitched == false)
+        if (hasPitched == false)
         {
             float amount = 0;
             if (_directionInput.x > 0)
@@ -82,7 +80,7 @@ public class Pitcher : MonoBehaviour
             }
         }
 
-        else //Ball is in the air
+        else if (liveBall != null) //Ball is in the air
         {
             //Wiggle the ball
             liveBall.transform.position += Vector3.back * pitchMovement * _directionInput.x * Time.deltaTime;
@@ -146,8 +144,9 @@ public class Pitcher : MonoBehaviour
 
     private void onDeadBall()
     {
+        Debug.Log("pitcher pitches");
         //Rotate
-        Vector3 temp = currentField.fieldCameras[0].transform.position;
+        Vector3 temp = Ballpark.i.fieldCameras[0].transform.position;
         temp.y = transform.position.y;
         transform.LookAt(temp);
 
@@ -160,6 +159,8 @@ public class Pitcher : MonoBehaviour
         Ballpark.deadBall += onDeadBall;
         ia_pitch.action.started += onWind;
         ia_pitch.action.canceled += onPitch;
+
+        onDeadBall(); //Sets up rotation
     }
 
     private void OnDisable()
@@ -169,7 +170,7 @@ public class Pitcher : MonoBehaviour
         ia_pitch.action.canceled -= onPitch;
 
         shiftAmount = 0;
-        if(pitcherTarget.gameObject.activeSelf)
+        if(pitcherTarget.gameObject != null)
         {
             pitcherTarget.position = defaultPitchPoint.position;
         }

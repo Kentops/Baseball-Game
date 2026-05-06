@@ -6,9 +6,18 @@
             "id": "12a44140-2f89-470a-a8dc-c35bd85b84d7",
             "actions": [
                 {
-                    "name": "Directional",
+                    "name": "Directional_Def",
                     "type": "PassThrough",
                     "id": "c8bae5a5-3024-487b-8439-476f9021a5c5",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Directional_Off",
+                    "type": "PassThrough",
+                    "id": "e9c1774b-e279-4f3d-b1d1-317453dd89ae",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -68,7 +77,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Directional",
+                    "action": "Directional_Def",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -79,7 +88,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard!",
-                    "action": "Directional",
+                    "action": "Directional_Def",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -90,7 +99,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard!",
-                    "action": "Directional",
+                    "action": "Directional_Def",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -101,7 +110,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard!",
-                    "action": "Directional",
+                    "action": "Directional_Def",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -112,7 +121,62 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard!",
-                    "action": "Directional",
+                    "action": "Directional_Def",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "2D Vector",
+                    "id": "ba758147-ebd7-453f-8f13-0b69732e9d4e",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Directional_Off",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "3aa9b289-88a7-4a91-8ca9-c25587fe3a2c",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard!",
+                    "action": "Directional_Off",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "3fa3769b-9670-4e2d-9359-232a21ebf313",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard!",
+                    "action": "Directional_Off",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "909df88e-889b-47ca-a532-9b0ed5f65ceb",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard!",
+                    "action": "Directional_Off",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "ae9876b0-2ed5-4dfb-bfc1-75c4e650ee29",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard!",
+                    "action": "Directional_Off",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -152,7 +216,7 @@
                 {
                     "name": "",
                     "id": "4c288916-0161-40fa-9e87-7a60e2942552",
-                    "path": "<Keyboard>/s",
+                    "path": "<Keyboard>/r",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard!",
