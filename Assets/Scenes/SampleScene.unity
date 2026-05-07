@@ -1503,6 +1503,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 608537026}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &665668551
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 665668552}
+  m_Layer: 0
+  m_Name: Right Foul Pos
+  m_TagString: Untagged
+  m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &665668552
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 665668551}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -124.6, y: 0.1, z: -121}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2137874323}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -1600,6 +1631,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1542691329}
   m_LocalEulerAnglesHint: {x: 57.835, y: -250.978, z: -151.609}
+--- !u!1 &734124584
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 734124585}
+  m_Layer: 0
+  m_Name: Left Foul Pos
+  m_TagString: Untagged
+  m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &734124585
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 734124584}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 118.39, y: 0.1, z: 110.29}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2137874323}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &837988541
 GameObject:
   m_ObjectHideFlags: 0
@@ -2597,6 +2659,8 @@ Transform:
   - {fileID: 1999196359}
   - {fileID: 164290954}
   - {fileID: 401981609}
+  - {fileID: 734124585}
+  - {fileID: 665668552}
   m_Father: {fileID: 1525451089}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &139622486998321327
@@ -3158,15 +3222,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9f71494ba54d2e478d196f8b4c8ffd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftMark: {fileID: 1054240394}
-  centerMark: {fileID: 1191425797}
-  rightMark: {fileID: 2085612438}
+  batterMarks:
+  - {fileID: 734124585}
+  - {fileID: 1054240394}
+  - {fileID: 1191425797}
+  - {fileID: 2085612438}
+  - {fileID: 665668552}
   currentBall: {fileID: 0}
   pitchPoints:
   - {fileID: 564216869}
   - {fileID: 1774636927}
   - {fileID: 407106954}
-  batterSwingCheck: {fileID: 211599298}
+  batterSwingCheck:
+  - {fileID: 211599298}
+  - {fileID: 608537028}
+  - {fileID: 1033019065}
   fieldCameras:
   - {fileID: 963194227}
   - {fileID: 351500919}

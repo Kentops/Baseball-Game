@@ -107,7 +107,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1737528511378460590
 Transform:
   m_ObjectHideFlags: 0
@@ -261,18 +261,33 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4472302600813399773}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26792f443ec27784d8301132d76c9629, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   power: 120
+  placementConsistency: 0.66
+  isRightHanded: 0
+  timingZonePercentages:
+  - 0.2
+  - 0.2
+  - 0.2
+  - 0.2
+  - 0.2
+  poorContactAngles:
+  - -60
+  - 60
+  goodContactAngles:
+  - -60
+  - 60
+  greatContactAngles:
+  - -10
+  - 45
   groundBallPercent: 0.33
   averageLaunchAngle: 100
   percentLeft: 0.2
   percentRight: 0.6
-  placementConsistency: 0.66
-  isRightHanded: 0
   myAnim: {fileID: 6872341405907686313}
   bat: {fileID: 2788534780556981000}
   ia_directional: {fileID: -5248621712080332307, guid: 1f0a27934dcb65048af3469d509ecff7, type: 3}

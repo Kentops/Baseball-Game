@@ -170,9 +170,6 @@ public class Pitcher : MonoBehaviour
         ia_pitch.action.canceled -= onPitch;
 
         shiftAmount = 0;
-        if(pitcherTarget.gameObject != null)
-        {
-            pitcherTarget.position = defaultPitchPoint.position;
-        }
+        pitcherTarget.position = defaultPitchPoint.position;
     }
 }

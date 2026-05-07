@@ -4,12 +4,15 @@ using UnityEngine.InputSystem;
 
 public class Batter : MonoBehaviour
 {
+    [Header ("Skill Fields")]
     public float power;
-    public float groundBallPercent; //0-1
-    public float averageLaunchAngle; //height above batter for direction
-    public float percentLeft, percentRight; //Chance of hitting to left or right. l + r < 1
     public float placementConsistency; //How close to dead left/center/right 0-1
     public bool isRightHanded;
+    public float[] timingZonePercentages;
+    public float[] poorContactAngles;
+    public float[] goodContactAngles;
+    public float[] greatContactAngles;
+
 
     //Hitspeed is based on the animation
     private int windingUp = 0;
@@ -30,7 +33,6 @@ public class Batter : MonoBehaviour
     void Start()
     {
         currentField = GameObject.FindGameObjectWithTag("Field").GetComponent<Ballpark>();
-        GetComponent<Collider>().enabled = false;
     }
 
     // Update is called once per frame
@@ -111,75 +113,122 @@ public class Batter : MonoBehaviour
 
             //Get the ball
             GameObject ball = Ballpark.i.currentBall;
+            Rigidbody ballRB = ball.GetComponent<Rigidbody>();
+            ballRB.linearVelocity = Vector3.zero; //Stop the ball while we calculate.
 
-            if (ball != null) //Required in case the ball is deleted by this time
+            //Determine direction based on position in hittable area.
+            float maxX = swingCheck[0].transform.position.x + (0.5f * swingCheck[0].transform.parent.localScale.x);
+            float minX = swingCheck[0].transform.position.x - (0.5f * swingCheck[0].transform.parent.localScale.x);
+            
+            int hitTiming = 4; //The actual value to determine the timing on a hit. //very early, early, good, late, very late
+            float sumOfPrev = 0;
+
+            for(int i = 0; i < 4; i++)
             {
-                Rigidbody ballRB = ball.GetComponent<Rigidbody>();
-
-                //Power = power stat * 4th root of 1-100 -1 (yields 0-2.16 power modifier)
-                float hitPower = power * (Mathf.Pow(Random.Range(1, 100), 0.25f) - 1.35f);
-                if(windingUp == 2)
+                float barrierValue = minX * (timingZonePercentages[i] + sumOfPrev) + maxX * (1-sumOfPrev-timingZonePercentages[i]);
+                if (ball.transform.position.x > barrierValue)
                 {
-                    hitPower *= 1.15f;
+                    hitTiming = i;
+                    break; //Don't calculate the rest
                 }
-                if (hitPower < 90) { hitPower = 90f; }
+                sumOfPrev += timingZonePercentages[i];
+            }
+
+            //Assigning the direction of the ball
+            Vector3 target = new Vector3(0, 0, 0);
+            if(isRightHanded)
+            {
+                target = Ballpark.i.batterMarks[hitTiming].position;
+            }
+            else //Mirror for lefties
+            {
+                target = Ballpark.i.batterMarks[4 - hitTiming].position;
+            }
+            //Add some randomization
+            target.x = target.x * (1 + Random.Range(placementConsistency - 1, 1 - placementConsistency));
+            target.z = target.z * (1 + Random.Range(placementConsistency - 1, 1 - placementConsistency));
 
 
-                //Deciding where the ball goes
-                Vector3 target = new Vector3(0, 0, 0);
-                float chance = Random.Range(0f, 1f);
-                if (chance < groundBallPercent)
-                {
-                    //Grounder
-                    target.y = Random.Range(transform.position.y - 50, transform.position.y + 20);
-                }
-                else
-                {
-                    //Flyball
-                    target.y = Random.Range(transform.position.y, averageLaunchAngle * 2);
-                    hitPower /= 1.33f;
-                    if (hitPower < power) { hitPower = power; }
-                    Debug.Log("Launch angle" + target.y);
-                }
-                Debug.Log("Hit power" + hitPower);
-
-                //Direction of ball
-                chance = Random.Range(0f, 1f);
-                if (chance < percentLeft)
-                {
-                    //Left field hit
-                    Vector3 leftField = currentField.leftMark.position;
-                    target.x = leftField.x * (1 + Random.Range(placementConsistency - 1, 1 - placementConsistency));
-                    target.z = leftField.z * (1 + Random.Range(placementConsistency - 1, 1 - placementConsistency));
-                }
-                else if (chance < percentLeft + percentRight)
-                {
-                    //Right field hit
-                    Vector3 rightField = currentField.rightMark.position;
-                    target.x = rightField.x * (1 + Random.Range(placementConsistency - 1, 1 - placementConsistency));
-                    target.z = rightField.z * (1 + Random.Range(placementConsistency - 1, 1 - placementConsistency));
-                }
-                else
-                {
-                    //Center field hit
-                    Vector3 centerField = currentField.centerMark.position;
-                    target.x = centerField.x * (1 + Random.Range(placementConsistency - 1, 1 - placementConsistency));
-                    target.z = centerField.z * (1 + Random.Range(placementConsistency - 1, 1 - placementConsistency));
-                }
-
-                //Ball stuff
-                Vector3 direction = target - transform.position;
-                ballRB.linearVelocity = Vector3.zero;
-                ballRB.linearVelocity = direction.normalized * hitPower; //normalized is unit vector
-                ball.GetComponent<BaseBall>().isHeld = 0;
-                ball.GetComponent<BaseBall>().gravityValue = currentField.gravityMultiplier * 9.81f;
+            //Determine quality of contact
+            int contactLevel = 1; //1-3, poor,good,great
+            float hitPower;
+            if (swingCheck[2].isStrike == true)
+            {
+                contactLevel = 3; //Great
+                hitPower = power * (Mathf.Pow(Random.Range(30, 100), 0.25f) - 1.35f); //Power = power stat * 4th root of 1-100 -1.25 (yields 1-1.8 power modifier)
+                if (hitPower < 90) { hitPower = 90; }
+            }
+            else if (swingCheck[1].isStrike == true)
+            {
+                contactLevel = 2; //Good
+                hitPower = power * (Mathf.Pow(Random.Range(10, 100), 0.25f) - 1.35f); //0 - 1.8 power modifier
+                if(hitPower < 90) { hitPower = 90; }
+            }
+            else
+            {
+                hitPower = Random.Range(90, power); //poor
+            }
 
 
 
-                //Let the game know it's a hit
-                Ballpark.ballHit();
+
+            //Determine Launch angle
+            //Here launch angle will be the percentage of the unit vector for the direction
+            float randomAngle;
+            if(contactLevel == 1)
+            {
+                randomAngle = Random.Range(poorContactAngles[0], poorContactAngles[1]);
+            }
+            else if(contactLevel == 2)
+            {
+                randomAngle = Random.Range(goodContactAngles[0], goodContactAngles[1]);
+            }
+            else
+            {
+                randomAngle = Random.Range(greatContactAngles[0], greatContactAngles[1]);
+            }
+
+            //Charge up's impact on angle
+            if (windingUp == 2 && contactLevel > 1) //If wound up with at least good contact, receive 15% bonus in power
+            {
+                hitPower *= 1.15f;
+                randomAngle *= 1.15f;
 
             }
+
+            //Create a normalized direction vector
+            randomAngle /= 90f;
+            target = target - transform.position;
+            target.y = 0;
+            target = target.normalized;
+            target.x *= 1 - randomAngle; 
+            target.z *= 1 - randomAngle;
+            target.y = randomAngle;
+
+
+
+
+
+            ////Power = power stat * 4th root of 1-100 -1 (yields 0-2.16 power modifier)
+            //float hitPower = power * (Mathf.Pow(Random.Range(1, 100), 0.25f) - 1.35f);
+            //if (windingUp == 2)
+            //{
+            //    hitPower *= 1.15f;
+            //}
+            //if (hitPower < 90) { hitPower = 90f; }
+
+            Debug.Log($"Hit power: {hitPower}, Angle: {target.y * 90}, Contact: {contactLevel}, Timing: {hitTiming}");
+
+            //Ball stuff
+            //Vector3 direction = target - transform.position;
+            ballRB.linearVelocity = target.normalized * hitPower; //normalized is unit vector
+            ball.GetComponent<BaseBall>().isHeld = 0;
+            ball.GetComponent<BaseBall>().gravityValue = currentField.gravityMultiplier * 9.81f;
+
+
+
+            //Let the game know it's a hit
+            Ballpark.ballHit();
         }
         //End of swing, ball is irrelevant here
 
@@ -224,11 +273,8 @@ public class Batter : MonoBehaviour
         ia_swing.action.canceled -= onSwing;
 
         shiftAmount = 0;
-        if (batterTarget.gameObject != null)
-        {
-            batterTarget.position = Ballpark.i.pitchPoints[0].position; //Default Position;
-            //swingCheck.transform.position = swingCheck.transform.TransformDirection(Vector3.zero); //Default position;
-        }
+        batterTarget.position = Ballpark.i.pitchPoints[0].position; //Default Position;
+        swingCheck[0].transform.localPosition = Vector3.zero; //Default position;
     }
 
 

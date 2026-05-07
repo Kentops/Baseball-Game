@@ -4,9 +4,7 @@ using UnityEngine;
 
 public class Ballpark : MonoBehaviour
 {
-    public Transform leftMark;
-    public Transform centerMark;
-    public Transform rightMark;
+    public Transform[] batterMarks;
     public GameObject currentBall;
     public Transform[] pitchPoints;
     public StrikeZone[] batterSwingCheck;
