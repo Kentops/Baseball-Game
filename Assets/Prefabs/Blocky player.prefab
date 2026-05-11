@@ -274,7 +274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26792f443ec27784d8301132d76c9629, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  power: 100
+  power: 120
   placementConsistency: 0.66
   isRightHanded: 0
   timingZonePercentages:
@@ -292,6 +292,7 @@ MonoBehaviour:
   greatContactAngles:
   - -10
   - 45
+  windingUp: 0
   myAnim: {fileID: 6872341405907686313}
   bat: {fileID: 2788534780556981000}
   ia_directional: {fileID: -5248621712080332307, guid: 1f0a27934dcb65048af3469d509ecff7, type: 3}
@@ -308,12 +309,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ace79f43532ad24da97b9e97c0eae6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  curveballSpeed: 80
+  curveballSpeed: 70
   fastballSpeed: 100
   accuracy: 1
   speedConsistency: 1
-  pitchMovement: 4
-  pitcherInfluence: 0
+  pitchMovement: 2
+  angleInfluence: 0
   isRightHanded: 0
   isFastball: 0
   releasePoint: {fileID: 8722145446901991743}

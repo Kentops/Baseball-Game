@@ -17,6 +17,7 @@ public class Batter : MonoBehaviour
     //Hitspeed is based on the animation
     [SerializeField] private int windingUp = 0;
     private float shiftAmount;
+    private bool canMove = true;
 
     [SerializeField] private Animator myAnim;
     [SerializeField] private GameObject bat;
@@ -43,43 +44,52 @@ public class Batter : MonoBehaviour
         _directionInput = ia_directional.action.ReadValue<Vector2>();
 
         //Shift
-        float amount = 0;
-        if (_directionInput.x > 0)
+        if(canMove)
         {
-            if (shiftAmount + 5 * Time.deltaTime > 2)
+            float amount = 0;
+            if (_directionInput.x > 0)
             {
-                amount = 2 - shiftAmount;
+                if (shiftAmount + 5 * Time.deltaTime > 2)
+                {
+                    amount = 2 - shiftAmount;
+                }
+                else
+                {
+                    amount = 5 * Time.deltaTime;
+                }
             }
-            else
+            else if (_directionInput.x < 0)
             {
-                amount = 5 * Time.deltaTime;
+                if (shiftAmount - 5 * Time.deltaTime < -2)
+                {
+                    amount = -2 - shiftAmount;
+                }
+                else
+                {
+                    amount = -5 * Time.deltaTime;
+                }
             }
-        }
-        else if (_directionInput.x < 0)
-        {
-            if (shiftAmount - 5 * Time.deltaTime < -2)
+            else if (_directionInput.y > 0)
             {
-                amount = -2 - shiftAmount;
+                amount = -1 * shiftAmount;
             }
-            else
-            {
-                amount = -5 * Time.deltaTime;
-            }
-        }
 
-        //Apply shift
-        if (amount != 0)
-        {
-            transform.position += Vector3.back * amount;
-            batterTarget.position += Vector3.back * amount;
-            swingCheck[0].transform.position += Vector3.back * amount; //Shift hittable area.
-            shiftAmount += amount;
+            //Apply shift
+            if (amount != 0)
+            {
+                transform.position += Vector3.back * amount;
+                batterTarget.position += Vector3.back * amount;
+                swingCheck[0].transform.position += Vector3.back * amount; //Shift hittable area.
+                shiftAmount += amount;
+            }
         }
+        
 
     }
 
     private void onWindup(InputAction.CallbackContext obj)
     {
+        canMove = false;
         myAnim.Play("B-Windup");
         windingUp = 0;
     }
@@ -204,26 +214,14 @@ public class Batter : MonoBehaviour
             }
 
 
-                //Create a normalized direction vector
-                randomAngle /= 90f;
+            //Create a normalized direction vector
+            randomAngle /= 90f;
             target = target - transform.position;
             target.y = 0;
             target = target.normalized;
             target.x *= 1 - randomAngle; 
             target.z *= 1 - randomAngle;
             target.y = randomAngle;
-
-
-
-
-
-            ////Power = power stat * 4th root of 1-100 -1 (yields 0-2.16 power modifier)
-            //float hitPower = power * (Mathf.Pow(Random.Range(1, 100), 0.25f) - 1.35f);
-            //if (windingUp == 2)
-            //{
-            //    hitPower *= 1.15f;
-            //}
-            //if (hitPower < 90) { hitPower = 90f; }
 
             Debug.Log($"Hit power: {hitPower}, Angle: {target.y * 90}, Contact: {contactLevel}, Timing: {hitTiming}");
 
@@ -239,6 +237,7 @@ public class Batter : MonoBehaviour
             Ballpark.ballHit();
         }
         //End of swing, ball is irrelevant here
+        canMove = true;
 
     }
 

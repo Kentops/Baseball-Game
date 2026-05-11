@@ -25,7 +25,8 @@ public class Pitcher : MonoBehaviour
     private Ballpark currentField;
     private Transform defaultPitchPoint;
     private Transform pitcherTarget;
-    private bool hasPitched = false;
+    private bool hasPitched = false; //Determines if ball has been released yet
+    private bool canMove = true;
 
 
     [Header("Input")]
@@ -54,38 +55,44 @@ public class Pitcher : MonoBehaviour
         //Apply shift
         if (hasPitched == false)
         {
-            float amount = 0;
-            if (_directionInput.x > 0)
+            if(canMove)
             {
-                if (shiftAmount + 5 * Time.deltaTime > 2)
+                float amount = 0;
+                if (_directionInput.x > 0)
                 {
-                    amount = 2 - shiftAmount;
+                    if (shiftAmount + 5 * Time.deltaTime > 2)
+                    {
+                        amount = 2 - shiftAmount;
+                    }
+                    else
+                    {
+                        amount = 5 * Time.deltaTime;
+                    }
                 }
-                else
+                else if (_directionInput.x < 0)
                 {
-                    amount = 5 * Time.deltaTime;
+                    if (shiftAmount - 5 * Time.deltaTime < -2)
+                    {
+                        amount = -2 - shiftAmount;
+                    }
+                    else
+                    {
+                        amount = -5 * Time.deltaTime;
+                    }
                 }
-            }
-            else if (_directionInput.x < 0)
-            {
-                if (shiftAmount - 5 * Time.deltaTime < -2)
+                else if (_directionInput.y > 0)//Reset position
                 {
-                    amount = -2 - shiftAmount;
+                    amount = -1 * shiftAmount;
                 }
-                else
-                {
-                    amount = -5 * Time.deltaTime;
-                }
-            }
 
-            if (amount != 0)
-            {
-                transform.position += Vector3.back * amount;
-                pitcherTarget.position += Vector3.back * amount;
-                shiftAmount += amount;
+                if (amount != 0)
+                {
+                    transform.position += Vector3.back * amount;
+                    pitcherTarget.position += Vector3.back * amount;
+                    shiftAmount += amount;
+                }
             }
         }
-
         else if (liveBall != null) //Ball is in the air
         {
             //Wiggle the ball
@@ -105,6 +112,9 @@ public class Pitcher : MonoBehaviour
 
     private void onWind (InputAction.CallbackContext obj)
     {
+        if(canMove == false) { return; } //Can't pitch while pitching
+        canMove = false;
+
         if (liveBall != null)
         {
             Destroy(liveBall);
@@ -116,10 +126,13 @@ public class Pitcher : MonoBehaviour
         liveBall = Instantiate(ball, releasePoint.position, Quaternion.identity);
         liveBall.transform.parent = releasePoint; //Ball moves with release point
         pitchWindup = 0;
+
     }
 
     private void onPitch(InputAction.CallbackContext obj)
     {
+        if(hasPitched == true || canMove == true) { return; }//Can't picth while pitching or while there's no ball
+
         hasPitched = true; //Once we start the anim, we're going
         myAnim.SetBool("Pitching", true);
     }
@@ -165,17 +178,25 @@ public class Pitcher : MonoBehaviour
         }
     }
 
+    private IEnumerator pitchCooldown() //Cooldown between pitches for the game not to freak out
+    {
+        yield return new WaitForSeconds(0.5f);
+        canMove = true;
+        hasPitched = false;
+    }
+
     private void onDeadBall()
     {
-        Debug.Log("pitcher pitches");
+
+        liveBall = null;
         //Rotate
         Vector3 temp = Ballpark.i.fieldCameras[0].transform.position;
         temp.y = transform.position.y;
         transform.LookAt(temp);
 
         //Allow another pitch
-        hasPitched = false;
         isFastball = false;
+        StartCoroutine(pitchCooldown());
     }
 
     private void OnEnable()
