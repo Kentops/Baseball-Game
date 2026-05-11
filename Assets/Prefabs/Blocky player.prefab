@@ -65,6 +65,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -86,9 +88,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2788534780556981000
 GameObject:
@@ -151,6 +155,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -172,9 +178,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &4472302600813399773
 GameObject:
@@ -266,7 +274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26792f443ec27784d8301132d76c9629, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  power: 120
+  power: 100
   placementConsistency: 0.66
   isRightHanded: 0
   timingZonePercentages:
@@ -284,10 +292,6 @@ MonoBehaviour:
   greatContactAngles:
   - -10
   - 45
-  groundBallPercent: 0.33
-  averageLaunchAngle: 100
-  percentLeft: 0.2
-  percentRight: 0.6
   myAnim: {fileID: 6872341405907686313}
   bat: {fileID: 2788534780556981000}
   ia_directional: {fileID: -5248621712080332307, guid: 1f0a27934dcb65048af3469d509ecff7, type: 3}
@@ -304,11 +308,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ace79f43532ad24da97b9e97c0eae6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  curveballSpeed: 80
+  fastballSpeed: 100
+  accuracy: 1
+  speedConsistency: 1
+  pitchMovement: 4
+  pitcherInfluence: 0
+  isRightHanded: 0
+  isFastball: 0
   releasePoint: {fileID: 8722145446901991743}
   ball: {fileID: 1282093137231469481, guid: 57384ed29621a0245af32aa900f47020, type: 3}
-  pitchSpeed: 80
-  accuracy: 1
-  pitchMovement: 4
   ia_directional: {fileID: 8306642850652370478, guid: 1f0a27934dcb65048af3469d509ecff7, type: 3}
   ia_pitch: {fileID: -5242049606075852256, guid: 1f0a27934dcb65048af3469d509ecff7, type: 3}
 --- !u!114 &8114719796366177347
@@ -329,7 +338,7 @@ MonoBehaviour:
   canMove: 1
   offPosition: 0
   pursueTarget: 0
-  speed: 35
+  speed: 30
   throwingHeight: 1
   throwingStrength: 180
   ia_directional: {fileID: 8306642850652370478, guid: 1f0a27934dcb65048af3469d509ecff7, type: 3}
@@ -384,10 +393,10 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
-  m_Size: {x: 3.2781982, y: 5.1819506, z: 4.007514}
-  m_Center: {x: -0.02794844, y: 2.6218948, z: 0.35511637}
+  m_Size: {x: 3.2456517, y: 1.3147393, z: 3.3529153}
+  m_Center: {x: -0.0442217, y: 0.6882891, z: 0.02781701}
 --- !u!195 &7448180090205401157
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -395,10 +404,10 @@ NavMeshAgent:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4472302600813399773}
-  m_Enabled: 0
+  m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 2.5
-  m_Speed: 34
+  m_Radius: 1.5
+  m_Speed: 25
   m_Acceleration: 1000
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -563,6 +572,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -584,7 +595,9 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}

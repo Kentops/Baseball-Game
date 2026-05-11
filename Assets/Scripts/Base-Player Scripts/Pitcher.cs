@@ -5,13 +5,19 @@ using UnityEngine.InputSystem;
 
 public class Pitcher : MonoBehaviour
 {
-    public Transform releasePoint;
-    public GameObject ball;
+    [Header("Skill Fields")]
+    public float curveballSpeed;
+    public float fastballSpeed;
+    public float accuracy;
+    public float speedConsistency; //0-1
+    public float pitchMovement;
+    public float angleInfluence; //Added to the angle of batted ball
+    public bool isRightHanded;
+    public bool isFastball; //For batters to know
 
-    [SerializeField] private float pitchSpeed;
-    [SerializeField] private float accuracy;
-    [SerializeField] private float pitchMovement;
-
+    [Header("Technical Elements")]
+    [SerializeField] private Transform releasePoint;
+    [SerializeField] private GameObject ball;
     private GameObject liveBall;
     private Animator myAnim;
     private int pitchWindup = 0;
@@ -83,7 +89,15 @@ public class Pitcher : MonoBehaviour
         else if (liveBall != null) //Ball is in the air
         {
             //Wiggle the ball
-            liveBall.transform.position += Vector3.back * pitchMovement * _directionInput.x * Time.deltaTime;
+            if(isFastball)
+            {
+                //Lose movement with speed
+                liveBall.transform.position += Vector3.back * (pitchMovement/2) * _directionInput.x * Time.deltaTime;
+            }
+            else
+            {
+                liveBall.transform.position += Vector3.back * pitchMovement * _directionInput.x * Time.deltaTime;
+            }
         }
 
        
@@ -97,10 +111,11 @@ public class Pitcher : MonoBehaviour
             liveBall = null;
             currentField.removeTheBall();
         }
+
         myAnim.Play("P-Windup");
         liveBall = Instantiate(ball, releasePoint.position, Quaternion.identity);
         liveBall.transform.parent = releasePoint; //Ball moves with release point
-        pitchWindup = 1;
+        pitchWindup = 0;
     }
 
     private void onPitch(InputAction.CallbackContext obj)
@@ -112,16 +127,22 @@ public class Pitcher : MonoBehaviour
     private void pitch()
     {
         myAnim.SetBool("Pitching", false);
-        //Random Position
+
+        //Set Pitch Dir
         Vector3 targetPos = pitcherTarget.position;
         targetPos.z *= 1 + Random.Range(accuracy - 1, 1 - accuracy);
         Vector3 pitchDirection = targetPos - liveBall.transform.position; //Relative position vector
 
-        //Random speed
-        float ballSpeed = pitchSpeed * Random.Range(0.85f, 1.15f);
-        if(pitchWindup == 1)
+        //Apply Speed to the ball;
+        float ballSpeed;
+        if(isFastball)
         {
-            ballSpeed *= 1.25f;
+            ballSpeed = fastballSpeed * Random.Range(speedConsistency, 2 - speedConsistency);
+        }
+        else
+        {
+            //Curveball
+            ballSpeed = curveballSpeed * Random.Range(speedConsistency, 2 - speedConsistency);
         }
 
         liveBall.GetComponent<Rigidbody>().linearVelocity = pitchDirection.normalized * ballSpeed; //Make it normalized later
@@ -135,10 +156,12 @@ public class Pitcher : MonoBehaviour
         if(pitchWindup == 1)
         {
             pitchWindup = 2;
+            isFastball = false;
         }
         else
         {
             pitchWindup = 1;
+            isFastball = true;
         }
     }
 
@@ -152,6 +175,7 @@ public class Pitcher : MonoBehaviour
 
         //Allow another pitch
         hasPitched = false;
+        isFastball = false;
     }
 
     private void OnEnable()

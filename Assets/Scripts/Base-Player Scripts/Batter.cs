@@ -15,7 +15,7 @@ public class Batter : MonoBehaviour
 
 
     //Hitspeed is based on the animation
-    private int windingUp = 0;
+    [SerializeField] private int windingUp = 0;
     private float shiftAmount;
 
     [SerializeField] private Animator myAnim;
@@ -23,6 +23,7 @@ public class Batter : MonoBehaviour
     private Ballpark currentField;
     private StrikeZone[] swingCheck;
     private Transform batterTarget;
+    private Pitcher opposingPitcher;
 
     [Header("Input")]
     public InputActionReference ia_directional;
@@ -80,7 +81,7 @@ public class Batter : MonoBehaviour
     private void onWindup(InputAction.CallbackContext obj)
     {
         myAnim.Play("B-Windup");
-        windingUp = 1;
+        windingUp = 0;
     }
 
     private void onSwing(InputAction.CallbackContext obj)
@@ -155,22 +156,18 @@ public class Batter : MonoBehaviour
             if (swingCheck[2].isStrike == true)
             {
                 contactLevel = 3; //Great
-                hitPower = power * (Mathf.Pow(Random.Range(30, 100), 0.25f) - 1.35f); //Power = power stat * 4th root of 1-100 -1.25 (yields 1-1.8 power modifier)
-                if (hitPower < 90) { hitPower = 90; }
+                hitPower = power * Random.Range(1,1.5f); //Power = power stat * 4th root of 1-100 -1.25 (yields 1-1.8 power modifier)
             }
             else if (swingCheck[1].isStrike == true)
             {
                 contactLevel = 2; //Good
-                hitPower = power * (Mathf.Pow(Random.Range(10, 100), 0.25f) - 1.35f); //0 - 1.8 power modifier
+                hitPower = power * Random.Range(0.9f,1.3f); //0 - 1.8 power modifier
                 if(hitPower < 90) { hitPower = 90; }
             }
             else
             {
                 hitPower = Random.Range(90, power); //poor
             }
-
-
-
 
             //Determine Launch angle
             //Here launch angle will be the percentage of the unit vector for the direction
@@ -193,11 +190,22 @@ public class Batter : MonoBehaviour
             {
                 hitPower *= 1.15f;
                 randomAngle *= 1.15f;
-
             }
 
-            //Create a normalized direction vector
-            randomAngle /= 90f;
+            //Pitcher impact on angle and speed
+            randomAngle += opposingPitcher.angleInfluence;
+            if(opposingPitcher.isFastball)
+            {
+                hitPower += opposingPitcher.fastballSpeed / 10f;
+            }
+            else
+            {
+                hitPower += opposingPitcher.curveballSpeed / 10f;
+            }
+
+
+                //Create a normalized direction vector
+                randomAngle /= 90f;
             target = target - transform.position;
             target.y = 0;
             target = target.normalized;
@@ -263,6 +271,13 @@ public class Batter : MonoBehaviour
             swingCheck[i] = Ballpark.i.batterSwingCheck[i];
         }
         batterTarget = Ballpark.i.pitchPoints[2];
+        opposingPitcher = TeamControl.i.homeTeam[0].GetComponent<Pitcher>();
+
+        if(isRightHanded == opposingPitcher.isRightHanded)
+        {
+            //Thinner strike zone
+            swingCheck[0].transform.localScale = new Vector3(1, 1, 0.8f);
+        }
     }
 
     private void OnDisable()
@@ -275,6 +290,7 @@ public class Batter : MonoBehaviour
         shiftAmount = 0;
         batterTarget.position = Ballpark.i.pitchPoints[0].position; //Default Position;
         swingCheck[0].transform.localPosition = Vector3.zero; //Default position;
+        swingCheck[0].transform.localScale = new Vector3(1, 1, 1);
     }
 
 

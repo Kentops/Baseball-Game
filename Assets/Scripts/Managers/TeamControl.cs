@@ -11,13 +11,25 @@ public class TeamControl : MonoBehaviour
     public Player[] awayTeam;
 
     private Ballpark currentField;
+    public static TeamControl i;
 
     // Start is called before the first frame update
     void Start()
     {
-        currentField = GameObject.FindGameObjectWithTag("Field").GetComponent<Ballpark>();
+        if (i == null) //Singleton
+        {
+            i = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+            currentField = GameObject.FindGameObjectWithTag("Field").GetComponent<Ballpark>();
         homeTeam = new Player[9];
         awayTeam = new Player[9];
+
     }
 
     // Update is called once per frame

@@ -15,6 +15,7 @@ public class Fielder : MonoBehaviour
     private bool touchingOthers = false;
     private Vector3 lookTarget;
     private int throwTarget;
+    private bool canLook = true;
 
     [SerializeField] private Transform rayPosition;
 
@@ -54,23 +55,6 @@ public class Fielder : MonoBehaviour
             transform.position -= new Vector3(0, 1, 0) * currentField.gravityMultiplier * 9.81f * Time.deltaTime;
         }
 
-        //Raycast - Prevent player running through things
-        /*if(Physics.Raycast(rayPosition.position, transform.forward, out RaycastHit hit, 2f))
-        {
-            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Wall") || hit.transform.gameObject.tag == "Player")
-            {
-                touchingOthers = true;
-            }
-            else
-            {
-                touchingOthers = false;
-            }
-        }
-        else
-        {
-            touchingOthers = false;
-        }*/
-
         //Read input
         _inputDirection = ia_directional.action.ReadValue<Vector2>();
         _throwPrepped = ia_prepThrow.action.ReadValue<float>() >= 0.5f; //Return true if key down
@@ -81,7 +65,7 @@ public class Fielder : MonoBehaviour
 
 
 
-        if(offPosition == false) //Don't automatically look when we're doing manual movements
+        if(canLook == true) //Don't automatically look when we're doing manual movements
         {
             if (lookTarget != Vector3.zero && lookTarget != transform.position)
             {
@@ -224,29 +208,32 @@ public class Fielder : MonoBehaviour
             }
             else //Throw is not prepped, move on input
             {
-                Debug.Log("Should be moving");
                 Vector3 moveVector = Vector3.zero;
 
                 if(_inputDirection.x > 0.5f) //Move right
                 {
                     moveVector += Vector3.back;
                     offPosition = true; //Tell defense to cover your position
+                    canLook = false; //Disable automatic rotation;
                 }
                 else if (_inputDirection.x < -0.5f) //Move Left
                 {
                     moveVector += Vector3.forward;
                     offPosition = true;
+                    canLook = false;
                 }
 
                 if (_inputDirection.y > 0.5f) //Move Up
                 {
                     moveVector += Vector3.right;
                     offPosition = true;
+                    canLook = false;
                 }
                 else if(_inputDirection.y < -0.5f)
                 {
                     moveVector += Vector3.left;
                     offPosition = true;
+                    canLook = false;
                 }
 
                 //Apply movement and rotation
@@ -254,67 +241,16 @@ public class Fielder : MonoBehaviour
                 lookTarget = moveVector + transform.position;
 
                 //Rotate fielder
-                Vector3 relativePos;
-                Quaternion lookRot;
-                relativePos = lookTarget - transform.position;
-                lookRot = Quaternion.LookRotation(relativePos, Vector3.up);
-                transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 5);
-            }
-            yield return null;
-
-            /*if (Input.GetKeyUp(KeyCode.UpArrow))
-            {
-                throwTarget = 2;
-                //Don't throw to yourself
-                if (currentField.baseDefenders[throwTarget] != this)
+                if(lookTarget != transform.position)
                 {
-                    StartCoroutine("throwBall");
-                    StopCoroutine("HoldingBall");
-                }
-            }
-            else if (Input.GetKeyUp(KeyCode.LeftArrow))
-            {
-                throwTarget = 3;
-                if (currentField.baseDefenders[throwTarget] != this)
-                {
-                    StartCoroutine("throwBall");
-                    StopCoroutine("HoldingBall");
-                }
-            }
-            else if (Input.GetKeyUp(KeyCode.DownArrow))
-            {
-                throwTarget = 0;
-                if (currentField.baseDefenders[throwTarget] != this)
-                {
-                    StartCoroutine("throwBall");
-                    StopCoroutine("HoldingBall");
-                }
-            }
-            else if (Input.GetKeyUp(KeyCode.RightArrow))
-            {
-                throwTarget = 1;
-                if (currentField.baseDefenders[throwTarget] != this)
-                {
-                    StartCoroutine("throwBall");
-                    StopCoroutine("HoldingBall");
+                    Vector3 relativePos;
+                    Quaternion lookRot;
+                    relativePos = lookTarget - transform.position;
+                    lookRot = Quaternion.LookRotation(relativePos);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, Time.deltaTime * 5);
                 }
             }
             yield return null;
-
-
-            //SILLY TEST
-            if(Input.GetKey(KeyCode.U))
-            {
-                transform.position = Vector3.MoveTowards(transform.position, transform.position + Vector3.forward, speed * Time.deltaTime);
-
-                //Look where you're going
-                lookTarget = Vector3.forward + transform.position;
-                offPosition = true; //Can't have for any movement, has to be specificly from input
-            }
-
-            //Always while holding the ball (after transforms)
-            myNav.destination = transform.position; //For when we start moving again when we don't have the ball*/
-
         }
     }
 
@@ -325,6 +261,7 @@ public class Fielder : MonoBehaviour
         Vector3 temp = currentField.fieldPos[throwTarget + 10].transform.position;
         temp.y = transform.position.y;
         lookTarget = temp;
+        canLook = true; //Enable automatic rotation
         yield return new WaitForSeconds(0.5f);
 
         //Throw to the base
