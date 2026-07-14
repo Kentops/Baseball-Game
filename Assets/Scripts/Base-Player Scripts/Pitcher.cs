@@ -23,8 +23,7 @@ public class Pitcher : MonoBehaviour
     private int pitchWindup = 0;
     private float shiftAmount = 0f;
     private Ballpark currentField;
-    private Transform defaultPitchPoint;
-    private Transform pitcherTarget;
+    private PitcherTarget pitcherTarget;
     private bool hasPitched = false; //Determines if ball has been released yet
     private bool canMove = true;
 
@@ -39,8 +38,7 @@ public class Pitcher : MonoBehaviour
     {
         currentField = GameObject.FindGameObjectWithTag("Field").GetComponent<Ballpark>();
 
-        defaultPitchPoint = Ballpark.i.pitchPoints[0].transform;
-        pitcherTarget = Ballpark.i.pitchPoints[1];
+        pitcherTarget = Ballpark.i.pitchPoints[1].transform.GetComponent<PitcherTarget>();
 
         myAnim = GetComponent<Animator>();
     }
@@ -88,7 +86,7 @@ public class Pitcher : MonoBehaviour
                 if (amount != 0)
                 {
                     transform.position += Vector3.back * amount;
-                    pitcherTarget.position += Vector3.back * amount;
+                    pitcherTarget.transform.position += Vector3.back * amount;
                     shiftAmount += amount;
                 }
             }
@@ -135,6 +133,9 @@ public class Pitcher : MonoBehaviour
 
         hasPitched = true; //Once we start the anim, we're going
         myAnim.SetBool("Pitching", true);
+
+        //Clear strike zone to invalidate any swing before pitch
+        Ballpark.i.strikeZone.isStrike = false;
     }
 
     private void pitch()
@@ -142,7 +143,7 @@ public class Pitcher : MonoBehaviour
         myAnim.SetBool("Pitching", false);
 
         //Set Pitch Dir
-        Vector3 targetPos = pitcherTarget.position;
+        Vector3 targetPos = pitcherTarget.transform.position;
         targetPos.z *= 1 + Random.Range(accuracy - 1, 1 - accuracy);
         Vector3 pitchDirection = targetPos - liveBall.transform.position; //Relative position vector
 
@@ -180,7 +181,7 @@ public class Pitcher : MonoBehaviour
 
     private IEnumerator pitchCooldown() //Cooldown between pitches for the game not to freak out
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
         canMove = true;
         hasPitched = false;
     }
@@ -189,6 +190,7 @@ public class Pitcher : MonoBehaviour
     {
 
         liveBall = null;
+
         //Rotate
         Vector3 temp = Ballpark.i.fieldCameras[0].transform.position;
         temp.y = transform.position.y;
@@ -215,6 +217,5 @@ public class Pitcher : MonoBehaviour
         ia_pitch.action.canceled -= onPitch;
 
         shiftAmount = 0;
-        pitcherTarget.position = defaultPitchPoint.position;
     }
 }

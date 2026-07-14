@@ -17,13 +17,14 @@ public class Batter : MonoBehaviour
     //Hitspeed is based on the animation
     [SerializeField] private int windingUp = 0;
     private float shiftAmount;
-    private bool canMove = true;
+    private bool charging = false;
+    private bool canSwing = true;
 
     [SerializeField] private Animator myAnim;
     [SerializeField] private GameObject bat;
     private Ballpark currentField;
-    private StrikeZone[] swingCheck;
-    private Transform batterTarget;
+    private BatterArea[] swingCheck;
+    private PitcherTarget batterTarget;
     private Pitcher opposingPitcher;
 
     [Header("Input")]
@@ -44,58 +45,60 @@ public class Batter : MonoBehaviour
         _directionInput = ia_directional.action.ReadValue<Vector2>();
 
         //Shift
-        if(canMove)
+        float amount = 0;
+        float shiftSpeed = 5;
+        if (charging) { shiftSpeed = 2.5f; }
+        if (_directionInput.x > 0)
         {
-            float amount = 0;
-            if (_directionInput.x > 0)
+            if (shiftAmount + shiftSpeed * Time.deltaTime > 2)
             {
-                if (shiftAmount + 5 * Time.deltaTime > 2)
-                {
-                    amount = 2 - shiftAmount;
-                }
-                else
-                {
-                    amount = 5 * Time.deltaTime;
-                }
+                amount = 2 - shiftAmount;
             }
-            else if (_directionInput.x < 0)
+            else
             {
-                if (shiftAmount - 5 * Time.deltaTime < -2)
-                {
-                    amount = -2 - shiftAmount;
-                }
-                else
-                {
-                    amount = -5 * Time.deltaTime;
-                }
-            }
-            else if (_directionInput.y > 0)
-            {
-                amount = -1 * shiftAmount;
-            }
-
-            //Apply shift
-            if (amount != 0)
-            {
-                transform.position += Vector3.back * amount;
-                batterTarget.position += Vector3.back * amount;
-                swingCheck[0].transform.position += Vector3.back * amount; //Shift hittable area.
-                shiftAmount += amount;
+                amount = shiftSpeed * Time.deltaTime;
             }
         }
-        
+        else if (_directionInput.x < 0)
+        {
+            if (shiftAmount - shiftSpeed * Time.deltaTime < -2)
+            {
+                amount = -2 - shiftAmount;
+            }
+            else
+            {
+                amount = -shiftSpeed * Time.deltaTime;
+            }
+        }
+        else if (_directionInput.y > 0)
+        {
+            amount = -1 * shiftAmount;
+        }
+
+        //Apply shift
+        if (amount != 0)
+        {
+            transform.position += Vector3.back * amount;
+            batterTarget.transform.position += Vector3.back * amount;
+            swingCheck[0].transform.position += Vector3.back * amount; //Shift hittable area.
+            shiftAmount += amount;
+        }
+
 
     }
 
     private void onWindup(InputAction.CallbackContext obj)
     {
-        canMove = false;
+        if(charging == true) { return; } //No double swing
+        charging = true;
         myAnim.Play("B-Windup");
         windingUp = 0;
     }
 
     private void onSwing(InputAction.CallbackContext obj)
     {
+        if(canSwing == false) { return; } //This only works so well, need a animation-based cooldown or a timer;
+        canSwing = false;
         myAnim.SetBool("Swinging", true);
     }
 
@@ -117,13 +120,22 @@ public class Batter : MonoBehaviour
     {
         myAnim.SetBool("Swinging", false); //Set variables for swing
         windingUp = 0;
+        Ballpark.i.strikeZone.isStrike = true; //You swung
 
         if (swingCheck[0].isStrike == true) //Check if ball is in hitting range
         {
+
             swingCheck[0].isStrike = false;
 
             //Get the ball
             GameObject ball = Ballpark.i.currentBall;
+            if(ball == null)
+            {
+                //Failsafe
+                charging = false;
+                canSwing = true; 
+                return;
+            } 
             Rigidbody ballRB = ball.GetComponent<Rigidbody>();
             ballRB.linearVelocity = Vector3.zero; //Stop the ball while we calculate.
 
@@ -237,7 +249,8 @@ public class Batter : MonoBehaviour
             Ballpark.ballHit();
         }
         //End of swing, ball is irrelevant here
-        canMove = true;
+        charging = false;
+        canSwing = true;
 
     }
 
@@ -264,12 +277,12 @@ public class Batter : MonoBehaviour
             transform.position = Ballpark.i.fieldPos[15].position;
         }
 
-        swingCheck = new StrikeZone[3];
+        swingCheck = new BatterArea[3];
         for(int i = 0; i<3; i++)
         {
             swingCheck[i] = Ballpark.i.batterSwingCheck[i];
         }
-        batterTarget = Ballpark.i.pitchPoints[2];
+        batterTarget = Ballpark.i.pitchPoints[2].GetComponent<PitcherTarget>();
         opposingPitcher = TeamControl.i.homeTeam[0].GetComponent<Pitcher>();
 
         if(isRightHanded == opposingPitcher.isRightHanded)
@@ -287,9 +300,6 @@ public class Batter : MonoBehaviour
         ia_swing.action.canceled -= onSwing;
 
         shiftAmount = 0;
-        batterTarget.position = Ballpark.i.pitchPoints[0].position; //Default Position;
-        swingCheck[0].transform.localPosition = Vector3.zero; //Default position;
-        swingCheck[0].transform.localScale = new Vector3(1, 1, 1);
     }
 
 

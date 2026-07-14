@@ -6,12 +6,13 @@ public class Ballpark : MonoBehaviour
 {
     public Transform[] batterMarks;
     public GameObject currentBall;
-    public Transform[] pitchPoints;
-    public StrikeZone[] batterSwingCheck;
+    public GameObject[] pitchPoints;
+    public BatterArea[] batterSwingCheck;
     public Camera[] fieldCameras; //0 - Catcher, 1 - Ball
     public GameObject ballTarget;
     [SerializeField] private GameObject fieldPositionHolder;
     public float gravityMultiplier;
+    public StrikeZone strikeZone;
 
     public Vector3 flyBallLanding;
     public Transform[] fieldPos; //In conventional baseball order but rf is 0.
@@ -25,6 +26,7 @@ public class Ballpark : MonoBehaviour
     public delegate void FieldEvent();
     public static FieldEvent ballHit;
     public static FieldEvent fairBall;
+    public static FieldEvent foulBall;
     public static FieldEvent deadBall; //Ball removed from play
     public static FieldEvent resetField; //Elements of scene reset
 
@@ -72,6 +74,7 @@ public class Ballpark : MonoBehaviour
             //Delete ball and reset game;
             deadBall();
             resetField();
+            StopAllCoroutines(); //Ends foul delay
         }
         if (flyBallLanding != Vector3.zero && currentBall.GetComponent<BaseBall>().isHeld == 2)
         {
@@ -125,6 +128,12 @@ public class Ballpark : MonoBehaviour
         flyBallLanding = Vector3.zero;
     }
 
+    private void OnFoulBall()
+    {
+        StartCoroutine(foulDelay());
+        Debug.Log("Foul");
+    }
+
     private void OnEnable()
     {
         ballHit += swapToBallCam;
@@ -132,6 +141,7 @@ public class Ballpark : MonoBehaviour
         fairBall += OnFairBall;
         deadBall += removeTheBall;
         resetField += swapToCatcherCam;
+        foulBall += OnFoulBall;
     }
 
     private void OnDisable()
@@ -141,6 +151,15 @@ public class Ballpark : MonoBehaviour
         fairBall -= OnFairBall;
         deadBall -= removeTheBall;
         resetField -= swapToCatcherCam;
+        foulBall -= OnFoulBall;
+    }
+
+    private IEnumerator foulDelay()
+    {
+        yield return new WaitForSeconds(2);
+        deadBall();
+        yield return new WaitForSeconds(2);
+        resetField();
     }
 
 }

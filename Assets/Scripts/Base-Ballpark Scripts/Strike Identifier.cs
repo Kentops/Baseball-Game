@@ -17,15 +17,20 @@ public class StrikeIdentifier : MonoBehaviour
             {
                 wasStrike = true;
                 Debug.Log("Strike!");
+                //Report it
+                ScoreKeeper.i.callStrike();
             }
             else
             {
                 wasStrike = false;
                 Debug.Log("Ball!");
+                ScoreKeeper.i.callBall();
             }
             strikeCheck.isStrike = false;
             Ballpark.deadBall();
+
             //Report it below
+            ScoreKeeper.i.checkForEvent();
         }
 
     }

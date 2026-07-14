@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BaseBall : MonoBehaviour
 {
-    public bool isLive = false;
+    //public bool isLive = false;
     public bool grounded = false; //Touching the ground
     public bool firstGrounded = false;
     public int isHeld = 2; //0 is false, 1 is being thrown so it can be picked up, 2 is in someone's hand
@@ -13,6 +13,8 @@ public class BaseBall : MonoBehaviour
 
     private Rigidbody myRb;
     private Collider myCol;
+    private bool passedFairMarker = false;
+    private bool isFoul = false;
 
     // Start is called before the first frame update
     void Start()
@@ -69,11 +71,25 @@ public class BaseBall : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if(isFoul)
+        {
+            return; //We are foul, we don't care about anything.
+        }
+
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             grounded = true;
             StartCoroutine("checkHeld");
         }
+        else if (collision.gameObject.layer == LayerMask.NameToLayer("Foul Territory"))
+        {
+            if(firstGrounded == false || passedFairMarker == false) //Ball is foul if it lands foul or goes foul before fair marker (bases)
+            {
+                Ballpark.foulBall();
+                isFoul = true;
+            }
+        }
+
     }
     private void OnCollisionExit(Collision collision)
     {
@@ -85,12 +101,31 @@ public class BaseBall : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if(other.gameObject.layer == LayerMask.NameToLayer("Fair Marker"))
+        {
+            if(isHeld == 0) //Doesn't get marked when pither throws it. Becomes 0 when hit
+            {
+                passedFairMarker = true;
+            }
+        }
+        else if (other.gameObject.layer == LayerMask.NameToLayer("Foul Fly")) //Ball has left the park foul
+        {
+            if (firstGrounded == true)
+            {
+                //Ground rule double or something
+            }
+            else
+            {
+                Ballpark.foulBall();
+                isFoul = true;
+            }
+        }
         //Be grabbed by the fielder, so long as they are not a pitcher
-        Fielder myFielder = other.gameObject.GetComponent<Fielder>();
-        if (other.gameObject.tag == "Player" && isHeld != 2 && myFielder.enabled == true)
+        else if (other.gameObject.tag == "Player" && isHeld != 2 && other.gameObject.GetComponent<Fielder>().enabled == true)
         {
             hold();
-            transform.parent = other.gameObject.GetComponent<Fielder>().ballHeldPos;
+            Fielder myFielder = other.gameObject.GetComponent<Fielder>();
+            transform.parent = myFielder.ballHeldPos;
             transform.position = transform.parent.position;
             myFielder.holdingBall = true;
             myFielder.StartCoroutine("HoldingBall");

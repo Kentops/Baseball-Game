@@ -15,13 +15,13 @@ public class StrikeZone : MonoBehaviour
             isStrike = true;
         }
     }
-    private void OnTriggerExit(Collider other)
-    {
-        if(other.gameObject.layer == LayerMask.NameToLayer("Ball"))
-        {
-            isStrike = false;
-        }
-    }
+    //private void OnTriggerExit(Collider other)
+    //{
+    //    if(other.gameObject.layer == LayerMask.NameToLayer("Ball"))
+    //    {
+    //        isStrike = false;
+    //    }
+    //}
 
     private void clearStrike() //Clear values when ball deleted
     {
@@ -30,11 +30,11 @@ public class StrikeZone : MonoBehaviour
 
     private void OnEnable()
     {
-        Ballpark.deadBall += clearStrike;
+        //Ballpark.deadBall += clearStrike;
     }
     private void OnDisable()
     {
-        Ballpark.deadBall -= clearStrike;
+        //Ballpark.deadBall -= clearStrike;
     }
 
 }
