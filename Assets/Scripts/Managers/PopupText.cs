@@ -16,7 +16,7 @@ public class PopupText : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void onReset()
+    private void onReset() //Hide when the scene changes or plays start
     {
         Destroy(gameObject);
     }
@@ -24,6 +24,7 @@ public class PopupText : MonoBehaviour
     private void OnEnable() //To make sure these leave when we want them to
     {
         Ballpark.resetField += onReset;
+        Ballpark.pitcherWinds += onReset;
 
         //If multiple exist, move previous up on screen
         PopupText[] otherTexts = FindObjectsByType<PopupText>(FindObjectsSortMode.InstanceID);
@@ -35,5 +36,6 @@ public class PopupText : MonoBehaviour
     private void OnDisable()
     {
         Ballpark.resetField -= onReset;
+        Ballpark.pitcherWinds -= onReset;
     }
 }

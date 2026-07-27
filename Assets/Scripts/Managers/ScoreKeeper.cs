@@ -9,6 +9,9 @@ public class ScoreKeeper : MonoBehaviour
     public int outs = 0;
     public bool canChange;
 
+    public int runsHome;
+    public int runsAway;
+
     [SerializeField] private GameObject display;
     [SerializeField] private GameObject sceneCanvas;
 
@@ -55,6 +58,12 @@ public class ScoreKeeper : MonoBehaviour
         outs += 1;
         Instantiate(display, sceneCanvas.transform).GetComponent<PopupText>().displayText("OUT", 2); //Display message
         checkForEvent();
+    }
+
+    public void onScore()
+    {
+        runsAway += 1;
+        Instantiate(display, sceneCanvas.transform).GetComponent<PopupText>().displayText($"{runsAway} - {runsHome}", 2);
     }
 
     private void onFoul()

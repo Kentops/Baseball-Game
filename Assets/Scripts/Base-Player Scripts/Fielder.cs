@@ -144,13 +144,17 @@ public class Fielder : MonoBehaviour
                 //Move
                 if (!touchingOthers && !holdingBall) //Prevent running through walls
                 {
-                    //transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
                     myNav.destination = targetPos;
                 }
             }
-            
+            else if(!canMove && holdingBall && _inputDirection == Vector2.zero) 
+            {
+                //An attempt at stopping slides. Ignored when attempting input
+                myNav.destination = transform.position;
+            }
 
-            yield return null;
+
+                yield return null;
 
         }
         lookTarget = Vector3.zero;

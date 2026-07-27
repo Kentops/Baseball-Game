@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
 {
     public string playerName;
     public int state; //0 = batting, 1 is pitching, 2 fielding, 3 baserunning
+    public int posInLineup; //Used to access prefab on offense
 
     private Batter myBatter;
     private Pitcher myPitcher;
@@ -15,11 +16,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        myBatter = GetComponent<Batter>();
-        myPitcher = GetComponent<Pitcher>();
-        myFielder = GetComponent<Fielder>();
-        myRunner = GetComponent<Runner>();
-        Ballpark.ballHit += ballHitResponse;
+
     }
 
     // Update is called once per frame
@@ -59,16 +56,38 @@ public class Player : MonoBehaviour
 
     public void ballHitResponse()
     {
-        StartCoroutine("delay");
+        StartCoroutine(ballHitDelay());
     }
 
-    IEnumerator delay()
+    IEnumerator ballHitDelay()
     {
+        //Pitcher -> Fielder
         if (state == 1)
         {
             changeState(2);
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.1f); //Delay to make sure state is changes I guess
             myFielder.getLiveBall();
         }
+
+        //Batter -> Runner
+        else if(state ==0)
+        {
+            changeState(3);
+            myRunner.startRunning();
+        }
+    }
+
+    private void OnEnable()
+    {
+        Ballpark.ballHit += ballHitResponse;
+
+        myBatter = GetComponent<Batter>();
+        myPitcher = GetComponent<Pitcher>();
+        myFielder = GetComponent<Fielder>();
+        myRunner = GetComponent<Runner>();
+    }
+    private void OnDisable()
+    {
+        Ballpark.ballHit -= ballHitResponse;
     }
 }

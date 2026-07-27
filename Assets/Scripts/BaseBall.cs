@@ -11,10 +11,14 @@ public class BaseBall : MonoBehaviour
     public bool useGravity = false;
     public float gravityValue = 0; //Gravity starts when hit;
 
+    public GameObject currentBatter; //Used for who hit the ball
+
     private Rigidbody myRb;
     private Collider myCol;
-    private bool passedFairMarker = false;
+    bool passedFairMarker = false;
     private bool isFoul = false;
+    private bool hasBeenTouched; //True if ball is ever touched
+    private Coroutine activeBallCheck;
 
     // Start is called before the first frame update
     void Start()
@@ -31,13 +35,13 @@ public class BaseBall : MonoBehaviour
             if (grounded == true && !firstGrounded)
             {
                 firstGrounded = true;
-                Ballpark.fairBall();
+                if (!isFoul) { Ballpark.fairBall(); }
             }
             //Physics
             if (grounded == false)
             {
                 //needs to be a vector
-                myRb.linearVelocity -= new Vector3(0f, 1, 0f) * gravityValue * Time.deltaTime; //Time.deltaTime works in the update function
+                myRb.linearVelocity -= Vector3.up * gravityValue * Time.deltaTime; //Time.deltaTime works in the update function
             }
             else
             {
@@ -52,11 +56,26 @@ public class BaseBall : MonoBehaviour
     public void hold()
     {
         isHeld = 2;
+        hasBeenTouched = true;
         useGravity = false;
-        StopCoroutine("checkHeld"); //No need to check
+        if(activeBallCheck != null)
+        {
+            StopCoroutine(activeBallCheck); //We know ball is not on the ground
+            activeBallCheck = null;
+        }
         myRb.linearVelocity = Vector3.zero;
         myRb.angularVelocity = Vector3.zero;
         myCol.isTrigger = true;
+
+        if(firstGrounded == false) //Check if we caught the ball
+        {
+            currentBatter.GetComponent<Runner>().onOut();
+            Ballpark.flyOut();
+
+            firstGrounded = true;
+            Ballpark.fairBall(); //Ball is in play now
+        }
+
     }
 
     public void onThrow()
@@ -68,6 +87,11 @@ public class BaseBall : MonoBehaviour
         useGravity = true;
     }
 
+    private void clearFairMark() //Resets mark after passed when pitching
+    {
+        passedFairMarker = false;
+    }
+
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -76,19 +100,21 @@ public class BaseBall : MonoBehaviour
             return; //We are foul, we don't care about anything.
         }
 
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        if (collision.gameObject.tag.Equals("Foul Territory") && isFoul == false && hasBeenTouched == false) //isFoul is for no repeats
         {
-            grounded = true;
-            StartCoroutine("checkHeld");
-        }
-        else if (collision.gameObject.layer == LayerMask.NameToLayer("Foul Territory"))
-        {
-            if(firstGrounded == false || passedFairMarker == false) //Ball is foul if it lands foul or goes foul before fair marker (bases)
+            if (firstGrounded == false || passedFairMarker == false) //Ball is foul if it lands foul or goes foul before fair marker (bases)
             {
                 Ballpark.foulBall();
                 isFoul = true;
             }
         }
+        else if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
+            grounded = true;
+            startBallCheck();
+        }
+        
+        
 
     }
     private void OnCollisionExit(Collision collision)
@@ -108,11 +134,12 @@ public class BaseBall : MonoBehaviour
                 passedFairMarker = true;
             }
         }
-        else if (other.gameObject.layer == LayerMask.NameToLayer("Foul Fly")) //Ball has left the park foul
+        else if (other.gameObject.layer == LayerMask.NameToLayer("Foul Fly") && isFoul == false) //Ball has left the park foul
         {
             if (firstGrounded == true)
             {
                 //Ground rule double or something
+                //Make another case if ball was touched. That's a free base for all
             }
             else
             {
@@ -123,6 +150,7 @@ public class BaseBall : MonoBehaviour
         //Be grabbed by the fielder, so long as they are not a pitcher
         else if (other.gameObject.tag == "Player" && isHeld != 2 && other.gameObject.GetComponent<Fielder>().enabled == true)
         {
+            if(isFoul) { return; }
             hold();
             Fielder myFielder = other.gameObject.GetComponent<Fielder>();
             transform.parent = myFielder.ballHeldPos;
@@ -133,15 +161,32 @@ public class BaseBall : MonoBehaviour
         }
     }
 
+    private void startBallCheck() //Prevents duplicate checks and ensures specific check is stopped when necessary
+    {
+        if(activeBallCheck == null)
+        {
+            activeBallCheck = StartCoroutine(checkHeld());
+        }
+    }
+
     private IEnumerator checkHeld()
     {
-        //After being on the ground for two seconds, defenders will start to move again
+        //After being on the ground for two seconds, defenders will start to move again. Only allow one check at a time.
         yield return new WaitForSeconds(2);
-        if(transform.parent == null)
+        if (transform.parent == null)
         {
-            Debug.Log("Hi there problem");
             isHeld = 0;
         }
+        activeBallCheck = null; //Allow more checks
+    }
+
+    private void OnEnable()
+    {
+        Ballpark.ballHit += clearFairMark;
+    }
+    private void OnDisable()
+    {
+        Ballpark.ballHit -= clearFairMark;
     }
 
 }

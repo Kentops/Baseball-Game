@@ -120,6 +120,12 @@ public class Pitcher : MonoBehaviour
             currentField.removeTheBall();
         }
 
+        //Only call if you have subscribers, otherwise we crash
+        if(Ballpark.pitcherWinds != null)
+        {
+            Ballpark.pitcherWinds();
+        }
+
         myAnim.Play("P-Windup");
         liveBall = Instantiate(ball, releasePoint.position, Quaternion.identity);
         liveBall.transform.parent = releasePoint; //Ball moves with release point

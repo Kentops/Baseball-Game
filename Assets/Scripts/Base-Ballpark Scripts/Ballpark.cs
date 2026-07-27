@@ -16,7 +16,10 @@ public class Ballpark : MonoBehaviour
 
     public Vector3 flyBallLanding;
     public Transform[] fieldPos; //In conventional baseball order but rf is 0.
+    public Transform[] basePos; //For runners. Home is 0
+    public Transform[] dugouts; //Runners go out here; End of inning?
     public Fielder[] baseDefenders;
+
 
     private Transform ballCam;
     private bool ballCamCanMove = true;
@@ -29,6 +32,8 @@ public class Ballpark : MonoBehaviour
     public static FieldEvent foulBall;
     public static FieldEvent deadBall; //Ball removed from play
     public static FieldEvent resetField; //Elements of scene reset
+    public static FieldEvent pitcherWinds; //Means the play is about to start
+    public static FieldEvent flyOut;
 
     // Start is called before the first frame update
     void Start()

@@ -309,10 +309,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  previousRunners:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   runnersInPlay: []
   currentHitter: {fileID: 0}
 --- !u!114 &46493895
@@ -344,8 +340,6 @@ MonoBehaviour:
   strikes: 0
   outs: 0
   canChange: 0
-  runsHome: 0
-  runsAway: 0
   display: {fileID: 5057657675727648260, guid: ec8ee9ced82cf524f96a24c0d70b5e2b, type: 3}
   sceneCanvas: {fileID: 1669618717}
 --- !u!1 &50629405
@@ -4220,7 +4214,7 @@ GameObject:
   - component: {fileID: 6479264808766594512}
   m_Layer: 7
   m_Name: Foul Territory
-  m_TagString: Foul Territory
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

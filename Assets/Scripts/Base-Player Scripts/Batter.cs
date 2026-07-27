@@ -242,6 +242,7 @@ public class Batter : MonoBehaviour
             ballRB.linearVelocity = target.normalized * hitPower; //normalized is unit vector
             ball.GetComponent<BaseBall>().isHeld = 0;
             ball.GetComponent<BaseBall>().gravityValue = currentField.gravityMultiplier * 9.81f;
+            ball.GetComponent<BaseBall>().currentBatter = gameObject; //Tell ball we hit it
 
 
 
@@ -275,6 +276,7 @@ public class Batter : MonoBehaviour
         else
         {
             transform.position = Ballpark.i.fieldPos[15].position;
+            transform.rotation = Quaternion.identity;
         }
 
         swingCheck = new BatterArea[3];
@@ -283,7 +285,7 @@ public class Batter : MonoBehaviour
             swingCheck[i] = Ballpark.i.batterSwingCheck[i];
         }
         batterTarget = Ballpark.i.pitchPoints[2].GetComponent<PitcherTarget>();
-        opposingPitcher = TeamControl.i.homeTeam[0].GetComponent<Pitcher>();
+        opposingPitcher = TeamControl.i.defense[0].GetComponent<Pitcher>();
 
         if(isRightHanded == opposingPitcher.isRightHanded)
         {
