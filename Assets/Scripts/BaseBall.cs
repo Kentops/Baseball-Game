@@ -18,7 +18,7 @@ public class BaseBall : MonoBehaviour
     bool passedFairMarker = false;
     private bool isFoul = false;
     private bool hasBeenTouched; //True if ball is ever touched
-    private Coroutine activeBallCheck;
+    private Coroutine activeGroundCheck;
 
     // Start is called before the first frame update
     void Start()
@@ -58,11 +58,12 @@ public class BaseBall : MonoBehaviour
         isHeld = 2;
         hasBeenTouched = true;
         useGravity = false;
-        if(activeBallCheck != null)
+        if(activeGroundCheck != null)
         {
-            StopCoroutine(activeBallCheck); //We know ball is not on the ground
-            activeBallCheck = null;
+            StopCoroutine(activeGroundCheck); //We know ball is not on the ground
+            activeGroundCheck = null;
         }
+
         myRb.linearVelocity = Vector3.zero;
         myRb.angularVelocity = Vector3.zero;
         myCol.isTrigger = true;
@@ -111,7 +112,7 @@ public class BaseBall : MonoBehaviour
         else if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             grounded = true;
-            startBallCheck();
+            startGroundCheck();
         }
         
         
@@ -161,15 +162,15 @@ public class BaseBall : MonoBehaviour
         }
     }
 
-    private void startBallCheck() //Prevents duplicate checks and ensures specific check is stopped when necessary
+    private void startGroundCheck() //Prevents duplicate checks and ensures specific check is stopped when necessary
     {
-        if(activeBallCheck == null)
+        if(activeGroundCheck == null)
         {
-            activeBallCheck = StartCoroutine(checkHeld());
+            activeGroundCheck = StartCoroutine(checkGround());
         }
     }
 
-    private IEnumerator checkHeld()
+    private IEnumerator checkGround()
     {
         //After being on the ground for two seconds, defenders will start to move again. Only allow one check at a time.
         yield return new WaitForSeconds(2);
@@ -177,7 +178,7 @@ public class BaseBall : MonoBehaviour
         {
             isHeld = 0;
         }
-        activeBallCheck = null; //Allow more checks
+        activeGroundCheck = null; //Allow more checks
     }
 
     private void OnEnable()

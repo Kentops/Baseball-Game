@@ -26,6 +26,7 @@ public class Pitcher : MonoBehaviour
     private PitcherTarget pitcherTarget;
     private bool hasPitched = false; //Determines if ball has been released yet
     private bool canMove = true;
+    private bool isLocked = false;
 
 
     [Header("Input")]
@@ -185,16 +186,31 @@ public class Pitcher : MonoBehaviour
         }
     }
 
-    private IEnumerator pitchCooldown() //Cooldown between pitches for the game not to freak out
+    public void lockUp() //Prevents pitcher from pitching (useful for loading screens)
     {
-        yield return new WaitForSeconds(0.1f);
+        isLocked = true;
+        hasPitched = true;
+        canMove = false;
+    }
+    public void unlock() //Allows pitcher to pitch
+    {
+        isLocked = false;
         canMove = true;
         hasPitched = false;
     }
 
+    private IEnumerator pitchCooldown() //Cooldown between pitches for the game not to freak out
+    {
+        yield return new WaitForSeconds(0.1f);
+        if (isLocked == false)
+        {
+            canMove = true;
+            hasPitched = false;
+        }
+    }
+
     private void onDeadBall()
     {
-
         liveBall = null;
 
         //Rotate

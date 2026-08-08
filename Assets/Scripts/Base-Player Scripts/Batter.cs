@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
@@ -253,6 +254,15 @@ public class Batter : MonoBehaviour
         charging = false;
         canSwing = true;
 
+    }
+
+    public void lockUp() //Prevents batter from swinging
+    {
+        canSwing = false;
+    }
+    public void unlock()
+    {
+        canSwing = true;
     }
 
     private void OnEnable()

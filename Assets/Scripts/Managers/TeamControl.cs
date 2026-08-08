@@ -13,14 +13,19 @@ public class TeamControl : MonoBehaviour
     [SerializeField] private GameObject[] awayFieldPrefab;
     [SerializeField] private GameObject[] awayBatPrefab;
 
-    public int homeLineupPos = 1;
-    public int awayLineupPos = 1;
+    [SerializeField] private int homeLineupPos = 1;
+    [SerializeField] private int awayLineupPos = 1;
+    public bool sceneReady = true; //Set to false elsewhere, lets others know when to stop a loading screen
 
     public Player[] defense = new Player[9];
     public Player[] safeRunners = new Player[3]; //0 is first, etc.
-    public Player[] previousRunners = new Player[3]; //Runners at start of play 
+
+    public Player [] previousRunners = new Player[3]; //Runners at start of play
+    public int[] previousRunnersId = new int[3]; //Runners at start of play (based on lineup index)
+
     public List<Runner> runnersInPlay;
     public Player currentHitter;
+    public Player currentPitcher;
 
     private bool lastPlayFoul = false;
 
@@ -68,7 +73,7 @@ public class TeamControl : MonoBehaviour
     private void onFairBall() //Ball is in play, next batter will be someone new
     {
         currentHitter = null;
-        awayLineupPos = (awayLineupPos % 9) + 1; //Next batter will be new
+        progressLineup(false); //Next batter will be new
     }
 
     private void onFoul()
@@ -76,6 +81,56 @@ public class TeamControl : MonoBehaviour
         lastPlayFoul = true;
     }
     #endregion
+
+    public void progressLineup(bool home)
+    {
+        if(home)
+        {
+            homeLineupPos = (homeLineupPos % 9) + 1;
+        }
+        else
+        {
+            awayLineupPos = (awayLineupPos % 9) + 1;
+        }
+    }
+
+    public void walkBatter() //Moves players on bases to walk the batter. Scene must be reset to apply.
+    {
+        lastPlayFoul = true; //So previousRunnersId is used to decide runners
+        int held = currentHitter.posInLineup;
+
+        for (int i = 0; i < 4; i++)
+        {
+            if(i == 3) //Bases were loaded before walk
+            {
+                ScoreKeeper.i.onScore();
+            }
+            else if (previousRunnersId[i] != 0) //Base occupied, keep going with next base
+            {
+                int temp = previousRunnersId[i];
+                previousRunnersId[i] = held;
+                held = temp;
+            }
+            else //Base is free
+            {
+                previousRunnersId[i] = held;
+                break; //end loop
+            }
+        }
+    }
+
+    public bool allOnBase() //returns true if every runner is on base
+    {
+        foreach(Runner r in runnersInPlay)
+        {
+            if (r.onBase == false)
+            {
+                return false;
+            }
+        }
+        //All on base
+        return true;
+    }
 
     private IEnumerator spawnPlayers()
     {
@@ -103,6 +158,12 @@ public class TeamControl : MonoBehaviour
             if (i == 0)
             {
                 defense[i].changeState(1); //Make pitcher
+                while (defense[0].GetComponent<Pitcher>().enabled == false)
+                {
+                    yield return null;
+                }
+                currentPitcher = defense[i];
+                //defense[i].GetComponent<Pitcher>().canMove = false; //Eventually we need to prevent pitcher from pitching whenever they feel.
             }
             else
             {
@@ -116,9 +177,9 @@ public class TeamControl : MonoBehaviour
         {
             if(lastPlayFoul)
             {
-                if (previousRunners[i] != null)
+                if (previousRunnersId[i] != 0)
                 {
-                    safeCopy[i] = previousRunners[i].posInLineup;
+                    safeCopy[i] = previousRunnersId[i];
                     safeRunners[i] = null;
                 }
             }
@@ -143,7 +204,8 @@ public class TeamControl : MonoBehaviour
             }
             Destroy(temp.gameObject);
         }
-
+        BaseBugManager.i.removeAllRunnerBugs();
+        Debug.Log("Creation");
         for(int i = 2; i >= 0; i--) //Spawn new runners on basepath (Farthest first)
         {
             if (safeCopy[i] != 0)
@@ -154,10 +216,11 @@ public class TeamControl : MonoBehaviour
                 temp.posInLineup = safeCopy[i];
                 safeRunners[i] = temp;
                 temp.GetComponent<Runner>().baseStarted = i + 1;
-                
+
             }
         }
-        previousRunners = (Player[])safeRunners.Clone(); //Previous runners becomes a clone
+        previousRunners = (Player[])safeRunners.Clone(); //Creates an unlinked copy
+        previousRunnersId = (int[])safeCopy.Clone(); 
         lastPlayFoul = false;
 
         //Get batter
@@ -170,6 +233,7 @@ public class TeamControl : MonoBehaviour
             }
         }
         currentHitter.changeState(0);
+        sceneReady = true;
     }
 
     private void OnEnable()

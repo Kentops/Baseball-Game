@@ -32,10 +32,21 @@ public class ScoreKeeper : MonoBehaviour
     public void checkForEvent()
     {
         //Checks the count to see if something should happen
-        if(strikes > 2)
+
+        if(strikes > 2) //Strikeout
         {
-            strikes = 0;
+            TeamControl.i.progressLineup(false); //Move lineup
+            cleanCount();
+            PlayEventManager.i.onStrikeout();
             callOut();
+        }
+        else if(balls > 3)
+        {
+            TeamControl.i.progressLineup(false);
+            cleanCount();
+            TeamControl.i.walkBatter();
+            Instantiate(display, sceneCanvas.transform).GetComponent<PopupText>().displayText("WALK", 2);
+            PlayEventManager.i.onStrikeout(); //Same from code perspective at this point
         }
     }
 

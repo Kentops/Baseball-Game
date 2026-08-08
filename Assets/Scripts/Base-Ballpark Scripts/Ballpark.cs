@@ -133,11 +133,6 @@ public class Ballpark : MonoBehaviour
         flyBallLanding = Vector3.zero;
     }
 
-    private void OnFoulBall()
-    {
-        StartCoroutine(foulDelay());
-        Debug.Log("Foul");
-    }
 
     private void OnEnable()
     {
@@ -146,7 +141,6 @@ public class Ballpark : MonoBehaviour
         fairBall += OnFairBall;
         deadBall += removeTheBall;
         resetField += swapToCatcherCam;
-        foulBall += OnFoulBall;
     }
 
     private void OnDisable()
@@ -156,15 +150,8 @@ public class Ballpark : MonoBehaviour
         fairBall -= OnFairBall;
         deadBall -= removeTheBall;
         resetField -= swapToCatcherCam;
-        foulBall -= OnFoulBall;
     }
 
-    private IEnumerator foulDelay()
-    {
-        yield return new WaitForSeconds(2);
-        deadBall();
-        yield return new WaitForSeconds(2);
-        resetField();
-    }
+
 
 }

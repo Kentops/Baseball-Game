@@ -102,7 +102,8 @@ public class Base : MonoBehaviour
             else //Wait until we are eligible to score
             {
                 Runner theRunner = other.GetComponent<Runner>();
-                if(fairBallCalled && theRunner.flyRetreat == false)
+                if(fairBallCalled && theRunner.flyRetreat == false //Ball is fair, runner not retreating
+                    && (defenderOn == null || defenderOn.holdingBall == false)) //Defender has no out
                 {
                     theRunner.onScore();
                 }

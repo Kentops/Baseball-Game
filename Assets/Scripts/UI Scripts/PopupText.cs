@@ -30,7 +30,7 @@ public class PopupText : MonoBehaviour
         PopupText[] otherTexts = FindObjectsByType<PopupText>(FindObjectsSortMode.InstanceID);
         for(int i = 1; i <otherTexts.Length; i++) //1 to not count ourself (we are first apparently)
         {
-            otherTexts[i].GetComponent<RectTransform>().anchoredPosition += Vector2.up * 50;
+            otherTexts[i].GetComponent<RectTransform>().anchoredPosition += Vector2.up * 100;
         }
     }
     private void OnDisable()

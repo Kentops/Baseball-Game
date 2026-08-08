@@ -9,12 +9,14 @@ public class Runner : MonoBehaviour
     public int lastBaseTouched; //So our runners stay in base lines when retreating
     public bool reachedBase = false;
     public bool flyRetreat; //Back to initial base
+    public bool retreat; //Back to last base
+    public int targetBase; //Used for baseBug
+    public GameObject baseBugIcon;
 
     [Header("Skill Fields")]
     public float speed;
 
     private NavMeshAgent myNav;
-    private bool retreat; //Back to last base
     private bool isOut;
 
 
@@ -42,7 +44,11 @@ public class Runner : MonoBehaviour
 
         isOut = true;
         ScoreKeeper.i.callOut(); //Confirm the out
+        //Remove from runners list and graphics list
+        int temp = TeamControl.i.runnersInPlay.IndexOf(this);
+        BaseBugManager.i.removeRunnerBug(temp);
         TeamControl.i.runnersInPlay.Remove(this);
+
 
         //Delete once we reach dugout
         StartCoroutine(leaveCoroutine());
@@ -51,6 +57,8 @@ public class Runner : MonoBehaviour
     public void onScore()
     {
         ScoreKeeper.i.onScore();
+        int temp = TeamControl.i.runnersInPlay.IndexOf(this);
+        BaseBugManager.i.removeRunnerBug(temp);
         TeamControl.i.runnersInPlay.Remove(this);
         isOut = true; //Want no one calling us out
         StartCoroutine(leaveCoroutine());
@@ -60,6 +68,7 @@ public class Runner : MonoBehaviour
     {
         if(isOut) { return; }
         flyRetreat = true;
+        retreat = true;
     }
 
     public void onFoulBall()
@@ -86,6 +95,7 @@ public class Runner : MonoBehaviour
 
         //Tell team control that we are a runner in play (Added to the end)
         TeamControl.i.runnersInPlay.Add(this);
+        BaseBugManager.i.createRunnerBug(0, baseBugIcon);
         reachedBase = false;
     }
 
@@ -132,6 +142,8 @@ public class Runner : MonoBehaviour
     private IEnumerator runCoroutine() //Makes a batter run
     {
         myNav.destination = Ballpark.i.basePos[baseStarted + 1].position;
+        targetBase = baseStarted + 1;
+
         while (transform.position != myNav.destination && !retreat && !flyRetreat) //Keep going towards next base
         {
             yield return null;
@@ -146,6 +158,7 @@ public class Runner : MonoBehaviour
                 while (prevBase != baseStarted)
                 {
                     myNav.destination = Ballpark.i.basePos[prevBase].position;
+                    targetBase = prevBase;
                     while (transform.position != myNav.destination)
                     {
                         yield return null;
@@ -155,11 +168,14 @@ public class Runner : MonoBehaviour
                 }
                 //Once more now that we know prevBase is our starting base
                 myNav.destination = Ballpark.i.basePos[prevBase].position;
+                targetBase = prevBase;
                 while (transform.position != myNav.destination)
                 {
                     yield return null;
                 }
-                Debug.Log("Back at base");
+                
+                //Returned to base
+                onBase = true;
                 flyRetreat = false;
                 retreat = false;
             }
