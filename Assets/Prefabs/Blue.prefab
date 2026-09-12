@@ -363,9 +363,13 @@ MonoBehaviour:
   lastBaseTouched: 0
   reachedBase: 0
   flyRetreat: 0
+  retreat: 0
   targetBase: 0
   baseBugIcon: {fileID: 7377951281953919574, guid: de47a926e598de7479e74c0e5a53a72d, type: 3}
   speed: 30
+  ia_directional: {fileID: -5248621712080332307, guid: 1f0a27934dcb65048af3469d509ecff7, type: 3}
+  ia_retreat: {fileID: 5653076426058601489, guid: 1f0a27934dcb65048af3469d509ecff7, type: 3}
+  ia_advance: {fileID: 4771292311529890060, guid: 1f0a27934dcb65048af3469d509ecff7, type: 3}
 --- !u!65 &5246433609469058780
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "Player Input Actions",
     "maps": [
         {
@@ -63,6 +64,15 @@
                     "name": "Swing",
                     "type": "Button",
                     "id": "6768e541-80f2-4b90-b281-c967f2bd9675",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Offense Action",
+                    "type": "Button",
+                    "id": "69001494-b666-457f-89ad-2134bf011062",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -232,6 +242,17 @@
                     "processors": "",
                     "groups": ";Keyboard!",
                     "action": "Prep Throw",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f8af58a6-07c3-4117-a1b8-8026856a5f31",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard!",
+                    "action": "Offense Action",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
