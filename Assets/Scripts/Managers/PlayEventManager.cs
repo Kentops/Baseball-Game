@@ -1,9 +1,12 @@
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Controls events such as foul balls, strikeouts, and balls
+/// </summary>
 public class PlayEventManager : MonoBehaviour
 {
-    //Controls events such as foul balls, strikeouts, and balls
+    public bool DebugAutomaticTransition = true; //Should transitions be automatic?
     public static PlayEventManager i;
 
     private Coroutine activePlayCountdown;
@@ -131,7 +134,7 @@ public class PlayEventManager : MonoBehaviour
     private IEnumerator nextPlayCountdown() //Determines when the current play should end
     {
         //End play if ball is held and all runners are on base for two full seconds
-        while(true) //Just keep going until stopped;
+        while(DebugAutomaticTransition) //Just keep going until stopped;
         {
             if(Ballpark.i.currentBall.GetComponent<BaseBall>().isHeld != 0
                 && TeamControl.i.allOnBase() == true)

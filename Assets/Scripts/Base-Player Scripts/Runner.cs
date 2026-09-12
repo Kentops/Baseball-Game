@@ -100,7 +100,6 @@ public class Runner : MonoBehaviour
 
         //Set target base and tell navmesh don't move
         myNav.isStopped = true;
-        targetBase = baseStarted + 1;
     }
 
     private void OnDisable()
@@ -145,7 +144,8 @@ public class Runner : MonoBehaviour
 
     private IEnumerator runCoroutine() //Makes a batter run
     {
-        myNav.destination = Ballpark.i.basePos[baseStarted + 1].position;
+        targetBase = baseStarted + 1;
+        myNav.destination = Ballpark.i.basePos[targetBase].position;
         myNav.isStopped = false; //Navmesh moves runner
 
         while (transform.position != myNav.destination && !retreat && !flyRetreat) //Keep going towards next base

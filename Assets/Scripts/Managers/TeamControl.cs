@@ -216,6 +216,7 @@ public class TeamControl : MonoBehaviour
                 temp.posInLineup = safeCopy[i];
                 safeRunners[i] = temp;
                 temp.GetComponent<Runner>().baseStarted = i + 1;
+                temp.GetComponent<Runner>().targetBase = i + 1; //For where they spawn on the basebug
 
             }
         }
