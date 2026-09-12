@@ -43,11 +43,11 @@ public class BaseBugManager : MonoBehaviour
         {
             Runner theRunner = TeamControl.i.runnersInPlay[index];
             //Cases we don't need to calculate
-            if(r.position == basePositions[theRunner.targetBase].position) { index++;  continue; } //icon on runner's target base
-            else if(theRunner.retreat && theRunner.targetBase > theRunner.lastBaseTouched) { index++;  continue; } //Hasn't retreated
+            if(r.position == basePositions[theRunner.targetBase].position) { index++;  Debug.Log(1);  continue; } //icon on runner's target base
+            else if(theRunner.retreat && theRunner.targetBase > theRunner.lastBaseTouched) { index++;  Debug.Log(2);  continue; } //Hasn't retreated
 
 
-                float percent = runProgress(theRunner);
+            float percent = runProgress(theRunner);
             if (percent > 0.98f)
             {
                 r.position = basePositions[theRunner.targetBase].position;

@@ -97,6 +97,10 @@ public class Runner : MonoBehaviour
         TeamControl.i.runnersInPlay.Add(this);
         BaseBugManager.i.createRunnerBug(0, baseBugIcon);
         reachedBase = false;
+
+        //Set target base and tell navmesh don't move
+        myNav.isStopped = true;
+        targetBase = baseStarted + 1;
     }
 
     private void OnDisable()
@@ -142,7 +146,7 @@ public class Runner : MonoBehaviour
     private IEnumerator runCoroutine() //Makes a batter run
     {
         myNav.destination = Ballpark.i.basePos[baseStarted + 1].position;
-        targetBase = baseStarted + 1;
+        myNav.isStopped = false; //Navmesh moves runner
 
         while (transform.position != myNav.destination && !retreat && !flyRetreat) //Keep going towards next base
         {
