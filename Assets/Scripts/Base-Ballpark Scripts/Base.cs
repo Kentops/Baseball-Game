@@ -34,7 +34,7 @@ public class Base : MonoBehaviour
                 }
             }
 
-            //Check for tag-up
+            //Check for tag-up (on fly ball outs)
             if (id != 4 && TeamControl.i.previousRunners[id-1] != null
                 && TeamControl.i.previousRunners[id-1].GetComponent<Runner>().flyRetreat) //They haven't retreated back yet
             {
@@ -92,7 +92,8 @@ public class Base : MonoBehaviour
             if(id != 4)
             {
                 //Add runner to base if able
-                if (runnerOn == null)
+                if (defenderOn!=null && defenderOn.holdingBall == true) { return; } //Don't let runner on if they will be out anyway
+                else if (runnerOn == null)
                 {
                     TeamControl.i.safeRunners[id - 1] = other.GetComponent<Player>();
                     runnerOn = other.GetComponent<Runner>();

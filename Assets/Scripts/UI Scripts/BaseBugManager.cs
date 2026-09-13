@@ -44,10 +44,11 @@ public class BaseBugManager : MonoBehaviour
             Runner theRunner = TeamControl.i.runnersInPlay[index];
             //Cases we don't need to calculate
             if(r.position == basePositions[theRunner.targetBase].position) { index++;  continue; } //icon on runner's target base
-            else if(theRunner.retreat && theRunner.targetBase > theRunner.lastBaseTouched) { index++;  continue; } //Hasn't retreated
+            else if(theRunner.isRetreating && theRunner.targetBase > theRunner.lastBaseTouched) { index++;  continue; } //Hasn't retreated
+            else if(theRunner.isStalled) { index++; return; } //Runner ain't moving! Plus, it's a grey zone
 
 
-            float percent = runProgress(theRunner);
+                float percent = runProgress(theRunner);
             if (percent > 0.98f)
             {
                 r.position = basePositions[theRunner.targetBase].position;
@@ -55,7 +56,7 @@ public class BaseBugManager : MonoBehaviour
             else
             {
                 Vector2 sum;
-                if(theRunner.retreat) //Account for retreating little guys
+                if(theRunner.isRetreating) //Account for retreating little guys
                 {
                     sum = (basePositions[theRunner.targetBase].position * percent) + (basePositions[theRunner.targetBase+1].position * (1 - percent));
                 }
@@ -101,7 +102,7 @@ public class BaseBugManager : MonoBehaviour
         //returns the percentage the baseRunner is to the base
         float targetMag, originMag, currentMag;
 
-        if(theRunner.retreat == true) //Sometimes a frame where they retreat but target base is still ahead.
+        if(theRunner.isRetreating == true) //Sometimes a frame where they retreat but target base is still ahead.
         {
             //target and last based touched will be same. Calculate differently.
             originMag = Ballpark.i.basePos[theRunner.targetBase+1].position.magnitude;

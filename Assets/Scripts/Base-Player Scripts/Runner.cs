@@ -9,14 +9,20 @@ public class Runner : MonoBehaviour
     public int baseStarted; //0 is none. Given at spawn by team control
     public int lastBaseTouched; //So our runners stay in base lines when retreating
     public bool reachedBase = false;
-    public bool flyRetreat; //Back to initial base
-    public bool retreat; //Back to last base
     public int targetBase; //Used for baseBug
     public GameObject baseBugIcon;
 
+    //Public behavior
+    public bool flyRetreat; //Back to initial base
+    public bool isAdvancing;
+    public bool isRetreating;
+    public bool isStalled;
+
+    //Private behavior, these are flags that tell the runner to do something when true;
     private bool stall; //Stop moving
-    private bool canStall = false; //Delay between ball in play and when you can retreat (So you can't stall before ball is in play);
     private bool advance;
+    private bool retreat; //Back to last base
+    private bool canStall = false; //Delay between ball in play and when you can retreat (So you can't stall before ball is in play);
 
     [Header("Skill Fields")]
     public float speed;
@@ -41,13 +47,8 @@ public class Runner : MonoBehaviour
 
     public void onReachBase(int baseNum)
     {
-        advance = false; //Clear baserunning actions
-        retreat = false;
+        clearStatus();
 
-        if(baseNum == lastBaseTouched)
-        {
-            return;
-        }
         onBase = true;
         reachedBase = true;
         lastBaseTouched = baseNum;
@@ -92,6 +93,15 @@ public class Runner : MonoBehaviour
         StopAllCoroutines();
         myNav.destination = transform.position;
     }
+    /// <summary>
+    /// Clears public behaviors such as isAdvancing
+    /// </summary>
+    private void clearStatus()
+    {
+        isAdvancing = false;
+        isRetreating = false;
+        isStalled = false;
+    }
 
     #region Input response
 
@@ -101,20 +111,20 @@ public class Runner : MonoBehaviour
     }
     private void onAdvanceInput(InputAction.CallbackContext obj) //If advance pressed twice while runner on base, go another base;
     {
-        if(retreat && !flyRetreat) //If retreating, stop.
+        if(isRetreating && !flyRetreat) //If retreating, stop.
         {
             retreat = false;
             stall = true;
             return;
         }
-        if (stall)  //If stalled, resume movement towards the next base.
+        if (isStalled)  //If stalled, resume movement towards the next base.
         { 
             stall = false; 
             myNav.isStopped = false;
             advance = true;
             return; 
         }
-        else if (advance || !onBase) { return; } //If advancing or not on base (advancing), return;
+        else if (isAdvancing || !onBase) { return; } //If advancing or not on base (advancing), return;
 
         _advanceInput++;
 
@@ -127,17 +137,16 @@ public class Runner : MonoBehaviour
     }
     private void onRetreatInput(InputAction.CallbackContext obj)
     {
-        if(!canStall || flyRetreat || retreat) { return; } //We're already leaving
-        else if(!stall) 
+        if(!canStall || flyRetreat || isRetreating) { return; } //We're already leaving
+        else if(!isStalled) 
         {
             //Stop moving
             stall = true; 
         } 
-        else if(stall)
+        else if(isStalled)
         {
             //Start retreating
             retreat = true;
-            stall = false;
         }
     }
     private IEnumerator stallDelay()
@@ -211,6 +220,7 @@ public class Runner : MonoBehaviour
 
         while (transform.position != myNav.destination)
         {
+            myNav.isStopped = false;
             yield return null;
         }
         //We reached it
@@ -225,24 +235,23 @@ public class Runner : MonoBehaviour
 
         myNav.isStopped = false; //Navmesh moves runner
 
-        while (transform.position != myNav.destination && !retreat && !flyRetreat && !stall) //Keep going towards next base
-        {
-            yield return null; 
-        }
 
         //We reached the next base, now what?
-        while(true)
+        while(!isOut)
         {
             if (flyRetreat) //Fly ball caught
             {
+                clearStatus();
+
                 myNav.isStopped = false;
-                stall = false;
 
                 int prevBase = lastBaseTouched;
                 while (prevBase != baseStarted)
                 {
-                    myNav.destination = Ballpark.i.basePos[prevBase].position;
+                    isRetreating = true;
                     targetBase = prevBase;
+                    myNav.destination = Ballpark.i.basePos[prevBase].position;
+                    
                     while (transform.position != myNav.destination)
                     {
                         yield return null;
@@ -251,6 +260,7 @@ public class Runner : MonoBehaviour
                     prevBase--;
                 }
                 //Once more now that we know prevBase is our starting base
+                isRetreating = true;
                 myNav.destination = Ballpark.i.basePos[prevBase].position;
                 targetBase = prevBase;
                 while (transform.position != myNav.destination)
@@ -261,7 +271,7 @@ public class Runner : MonoBehaviour
                 //Returned to base
                 onBase = true;
                 flyRetreat = false;
-                retreat = false;
+                clearStatus();
             }
 
             //User intervention
@@ -269,24 +279,33 @@ public class Runner : MonoBehaviour
             {
                 //Stop baserunner in their tracks
                 myNav.isStopped = true;
+                stall = false; //We stopped, don't need to keep doing it
+
+                //Keep track of behavior
+                clearStatus();
+                isStalled = true;
             }
             else if (retreat) //Go to previous base
             {
                 myNav.isStopped = false;
                 myNav.destination = Ballpark.i.basePos[lastBaseTouched].position;
                 targetBase = lastBaseTouched;
-                //while (transform.position != myNav.destination)
-                //{
-                //    yield return null;
-                //}
-                //retreat = false;
 
+                //Behavior status
+                clearStatus();
+                isRetreating = true;
+                retreat = false;
             }
             else if(advance) //Advance to the next base
             {
                 myNav.isStopped = false;
                 targetBase = lastBaseTouched + 1;
                 myNav.destination = Ballpark.i.basePos[targetBase].position;
+
+                //Behavior Status
+                clearStatus();
+                isAdvancing = true;
+                advance = false;
 
             }
 
