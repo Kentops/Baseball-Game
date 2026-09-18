@@ -22,7 +22,7 @@ public class Runner : MonoBehaviour
     private bool stall; //Stop moving
     private bool advance;
     private bool retreat; //Back to last base
-    private bool canStall = false; //Delay between ball in play and when you can retreat (So you can't stall before ball is in play);
+    private bool canInteract = false; //Determines if player can command runners. Enabled after ball hit.
 
     [Header("Skill Fields")]
     public float speed;
@@ -92,7 +92,13 @@ public class Runner : MonoBehaviour
     {
         StopAllCoroutines();
         myNav.destination = transform.position;
+        canInteract = false;
     }
+    private void onPlayEnd() //When screen starts to fade
+    {
+        canInteract = false; //Prevents runners from moving when play is over
+    }
+
     /// <summary>
     /// Clears public behaviors such as isAdvancing
     /// </summary>
@@ -107,10 +113,13 @@ public class Runner : MonoBehaviour
 
     private void Update()
     {
-        
+        _dirInput = ia_directional.action.ReadValue<Vector2>();
     }
+
     private void onAdvanceInput(InputAction.CallbackContext obj) //If advance pressed twice while runner on base, go another base;
     {
+        if (checkDirectional() == false) { return; } //See if this input is for us
+
         if(isRetreating && !flyRetreat) //If retreating, stop.
         {
             retreat = false;
@@ -137,22 +146,43 @@ public class Runner : MonoBehaviour
     }
     private void onRetreatInput(InputAction.CallbackContext obj)
     {
-        if(!canStall || flyRetreat || isRetreating) { return; } //We're already leaving
-        else if(!isStalled) 
+        if (checkDirectional() == false) { return; } //See if this input is for us
+
+        if (flyRetreat || isRetreating) { return; } //We're already leaving
+        else if (!isStalled)
         {
             //Stop moving
-            stall = true; 
-        } 
-        else if(isStalled)
+            stall = true;
+        }
+        else if (isStalled)
         {
             //Start retreating
             retreat = true;
         }
     }
+
+    /// <summary>
+    /// Returns true if directional input is empty or is selecting the runner
+    /// </summary>
+    private bool checkDirectional()
+    {
+        if(canInteract == false) { return false; }
+        //Don't affect runner coming from home
+        if (lastBaseTouched == 0) { return false; }
+
+        else if (_dirInput == Vector2.zero) { return true; } //No input, affect everyone
+        else if (_dirInput == Vector2.right && lastBaseTouched == 1) { return true; } //first base
+        else if (_dirInput == Vector2.up && lastBaseTouched == 2) { return true; } //second base
+        else if (_dirInput == Vector2.left && lastBaseTouched == 3) { return true; } //third base
+        else { return false; }
+
+    }
+
+    //Stall cant be allowed at start otherwise batting (pressing r) stalls runners
     private IEnumerator stallDelay()
     {
         yield return new WaitForSeconds(0.25f);
-        canStall = true;
+        canInteract = true;
     }
     #endregion
 
@@ -161,6 +191,7 @@ public class Runner : MonoBehaviour
         Ballpark.ballHit += startRunning;
         Ballpark.flyOut += onFlyOut;
         Ballpark.foulBall += onFoulBall;
+        Ballpark.playEnd += onPlayEnd;
         ia_retreat.action.started += onRetreatInput;
         ia_advance.action.started += onAdvanceInput;
 
@@ -188,6 +219,7 @@ public class Runner : MonoBehaviour
         Ballpark.ballHit -= startRunning;
         Ballpark.flyOut -= onFlyOut;
         Ballpark.foulBall -= onFoulBall;
+        Ballpark.playEnd -= onPlayEnd;
         ia_retreat.action.started -= onRetreatInput;
         ia_advance.action.started -= onAdvanceInput;
 

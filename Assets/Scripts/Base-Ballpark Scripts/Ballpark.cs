@@ -34,6 +34,7 @@ public class Ballpark : MonoBehaviour
     public static FieldEvent resetField; //Elements of scene reset
     public static FieldEvent pitcherWinds; //Means the play is about to start
     public static FieldEvent flyOut;
+    public static FieldEvent playEnd; //When play is over, right as screen starts to transition
 
     // Start is called before the first frame update
     void Start()

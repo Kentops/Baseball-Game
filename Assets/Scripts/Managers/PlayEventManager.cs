@@ -59,6 +59,14 @@ public class PlayEventManager : MonoBehaviour
         activePlayCountdown = null;
     }
 
+    private void callPlayEnd() //Ensure there's subscribers listening
+    {
+        if(Ballpark.playEnd != null)
+        {
+            Ballpark.playEnd();
+        }
+    }
+
     private void OnEnable()
     {
         if(i == null)
@@ -83,6 +91,7 @@ public class PlayEventManager : MonoBehaviour
 
     private IEnumerator foulDelay()
     {
+        callPlayEnd();
         yield return new WaitForSeconds(2);
         Ballpark.deadBall();
         StartCoroutine(fieldReset());
@@ -90,7 +99,8 @@ public class PlayEventManager : MonoBehaviour
 
     private IEnumerator fieldReset(float s = 0)
     {
-        lockPitcherHitter();
+        callPlayEnd();
+        Ballpark.playEnd();
         yield return new WaitForSeconds(s); //Delay before fading out;
         FadeManager.i.fadeOut(1);
         yield return new WaitForSeconds(1);
@@ -110,7 +120,7 @@ public class PlayEventManager : MonoBehaviour
 
     private IEnumerator strikeoutReset() //Prevent pitching and swinging, delete batter, reset field
     {
-        lockPitcherHitter();
+        Ballpark.playEnd();
         yield return new WaitForSeconds(2);
         FadeManager.i.fadeOut(1);
         yield return new WaitForSeconds(1);
