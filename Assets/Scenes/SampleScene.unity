@@ -294,7 +294,7 @@ MonoBehaviour:
   - {fileID: 4472302600813399773, guid: 6c0390e49308d2f46800e6fa206d0403, type: 3}
   - {fileID: 4472302600813399773, guid: 6c0390e49308d2f46800e6fa206d0403, type: 3}
   awayBatPrefab:
-  - {fileID: 4472302600813399773, guid: 6c0390e49308d2f46800e6fa206d0403, type: 3}
+  - {fileID: 4472302600813399773, guid: 575ba422b544e0b4588115b466a5efa6, type: 3}
   - {fileID: 4472302600813399773, guid: b0e5d67c243031f4db360f61ee1c2bff, type: 3}
   - {fileID: 4472302600813399773, guid: 6c0390e49308d2f46800e6fa206d0403, type: 3}
   - {fileID: 4472302600813399773, guid: b0e5d67c243031f4db360f61ee1c2bff, type: 3}
@@ -364,6 +364,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38ac506ce42cfc3419a560445ccbe0fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayEventManager
+  DebugAutomaticTransition: 1
 --- !u!1 &50629405
 GameObject:
   m_ObjectHideFlags: 0

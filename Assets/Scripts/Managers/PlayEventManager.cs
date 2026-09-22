@@ -100,7 +100,6 @@ public class PlayEventManager : MonoBehaviour
     private IEnumerator fieldReset(float s = 0)
     {
         callPlayEnd();
-        Ballpark.playEnd();
         yield return new WaitForSeconds(s); //Delay before fading out;
         FadeManager.i.fadeOut(1);
         yield return new WaitForSeconds(1);
@@ -120,7 +119,6 @@ public class PlayEventManager : MonoBehaviour
 
     private IEnumerator strikeoutReset() //Prevent pitching and swinging, delete batter, reset field
     {
-        Ballpark.playEnd();
         yield return new WaitForSeconds(2);
         FadeManager.i.fadeOut(1);
         yield return new WaitForSeconds(1);
